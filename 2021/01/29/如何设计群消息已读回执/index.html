@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yannickcao.top","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="一、背景发出一个微信消息，都希望对方尽快看到并尽快回复，但始终不知道对方是否阅读； 发出一个钉钉消息，”强制已读回执“ 功能，无法“假装不在线”； 那群消息的流程，接收方如何确保收到群消息，发送发如何收已读回执，是拉取还是推送">
+<meta property="og:type" content="article">
+<meta property="og:title" content="群消息已读回执如何设计？">
+<meta property="og:url" content="https://yannickcao.top/2021/01/29/%E5%A6%82%E4%BD%95%E8%AE%BE%E8%AE%A1%E7%BE%A4%E6%B6%88%E6%81%AF%E5%B7%B2%E8%AF%BB%E5%9B%9E%E6%89%A7/index.html">
+<meta property="og:site_name" content="yannick小站">
+<meta property="og:description" content="一、背景发出一个微信消息，都希望对方尽快看到并尽快回复，但始终不知道对方是否阅读； 发出一个钉钉消息，”强制已读回执“ 功能，无法“假装不在线”； 那群消息的流程，接收方如何确保收到群消息，发送发如何收已读回执，是拉取还是推送">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://gitee.com/yannickCao/blogimg/raw/master/img/20210203165605.png">
+<meta property="og:image" content="https://gitee.com/yannickCao/blogimg/raw/master/img/20210203172017.png">
+<meta property="og:image" content="https://gitee.com/yannickCao/blogimg/raw/master/img/image-20210203174234042.png">
+<meta property="article:published_time" content="2021-01-29T09:24:28.000Z">
+<meta property="article:modified_time" content="2021-02-04T02:31:46.516Z">
+<meta property="article:author" content="yannickCao">
+<meta property="article:tag" content="架构">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://gitee.com/yannickCao/blogimg/raw/master/img/20210203165605.png">
+
+<link rel="canonical" href="https://yannickcao.top/2021/01/29/%E5%A6%82%E4%BD%95%E8%AE%BE%E8%AE%A1%E7%BE%A4%E6%B6%88%E6%81%AF%E5%B7%B2%E8%AF%BB%E5%9B%9E%E6%89%A7/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>群消息已读回执如何设计？ | yannick小站</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">yannick小站</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://yannickcao.top/2021/01/29/%E5%A6%82%E4%BD%95%E8%AE%BE%E8%AE%A1%E7%BE%A4%E6%B6%88%E6%81%AF%E5%B7%B2%E8%AF%BB%E5%9B%9E%E6%89%A7/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="yannickCao">
+      <meta itemprop="description" content="如何过一天，就是如何过一年">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yannick小站">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          群消息已读回执如何设计？
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-01-29 17:24:28" itemprop="dateCreated datePublished" datetime="2021-01-29T17:24:28+08:00">2021-01-29</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-02-04 10:31:46" itemprop="dateModified" datetime="2021-02-04T10:31:46+08:00">2021-02-04</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%9E%B6%E6%9E%84/" itemprop="url" rel="index"><span itemprop="name">架构</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>2k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>6 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="一、背景"><a href="#一、背景" class="headerlink" title="一、背景"></a>一、背景</h1><p>发出一个微信消息，都希望对方尽快看到并尽快回复，但始终不知道对方是否阅读；</p>
+<p>发出一个钉钉消息，”强制已读回执“ 功能，无法“假装不在线”；</p>
+<p>那群消息的流程，接收方如何确保收到群消息，发送发如何收已读回执，是拉取还是推送</p>
+<a id="more"></a>
+
+
+
+
+
+<h1 id="二、群消息投递流程，以及可达性保证"><a href="#二、群消息投递流程，以及可达性保证" class="headerlink" title="二、群消息投递流程，以及可达性保证"></a>二、群消息投递流程，以及可达性保证</h1><h2 id="1、需求解读"><a href="#1、需求解读" class="headerlink" title="1、需求解读"></a>1、需求解读</h2><ul>
+<li><p><strong>核心问题1：群消息，存一份？还是每个成员存一份？</strong></p>
+</li>
+<li><p><strong>核心问题2：如果群消息只存一份，怎么知道每个成员读了那些消息？</strong></p>
+<p>利用群消息的偏序关系，<font color="red">记录每个成员的 last_ack_msgid（last_ack_time）</font>，本消息之前的消息标记为已读，这条消息之后的标记为未读。对于群内的每一个用户，只需要记录一个值即可。</p>
+</li>
+</ul>
+<h2 id="2、数据库设计"><a href="#2、数据库设计" class="headerlink" title="2、数据库设计"></a>2、数据库设计</h2><p>核心数据结构</p>
+<ul>
+<li><p>群消息表：记录群消息</p>
+<p>group_msgs(msgid, gid, sender_uid, time, content);</p>
+<p>群消息id，群id，发送方uid，发送时间，发送内容</p>
+</li>
+<li><p>群成员表：记录群里的成员，以及每个成员收到的最后一条群消息</p>
+<p>group_users(gid, uid, last_ack_msgid)</p>
+<p>群id，群成员uid，群成员最后收到的一条消息id</p>
+</li>
+</ul>
+<p>业务场景</p>
+<ol>
+<li>一个群中有a，uid1，uid2，uid3四名用户；</li>
+<li>a，uid1，uid2在线，期望实时收到在线消息；</li>
+<li>uid3 离线，期望未来拉取到离线消息；</li>
+</ol>
+<p><img src="https://gitee.com/yannickCao/blogimg/raw/master/img/20210203165605.png"></p>
+<p>发送流程如上图：</p>
+<ol>
+<li>a发出群消息</li>
+<li>server收到消息后 ，首先要将群消息落地，二来要查询有哪些群成员，以便实施推送；</li>
+<li>对于群成员，查询在线状态；</li>
+<li>对于在线的群成员，实施推送；</li>
+</ol>
+<p>在这个流程中，只要第2步消息落地完成，就能保证群消息不会丢失</p>
+<ul>
+<li><strong>核心问题3：如何保证接收方一定收到群消息？</strong></li>
+</ul>
+<p>每个用户收到消息后，要修改各群成员的last_ack_msgid，以告诉系统，这一条消息确认收到了</p>
+<p>在线用户，离线用户的 last_ack_msgid 的修改，要区别处理</p>
+<p><img src="https://gitee.com/yannickCao/blogimg/raw/master/img/20210203172017.png"></p>
+<ul>
+<li><p><strong>核心问题4：如果ack丢失，群友会不会拉取重复的群消息</strong></p>
+<p>会的，可以根据 msgid 在客户端本地进行去重，即使收到了重复的消息，可以不显示</p>
+</li>
+</ul>
+<h1 id="三、已读回执流程"><a href="#三、已读回执流程" class="headerlink" title="三、已读回执流程"></a>三、<strong>已读回执流程</strong></h1><p>新的业务：对于发送方发送的任何一条群消息，都需要知道有多少人已读，多少人未读，就需要新表来记录这个关系</p>
+<p>消息回执表：用来记录消息的已读回执</p>
+<p>msg_acks(sender_uid, msgid, recv_uid, gid, if_ack);</p>
+<p>发送方uid，消息id，回执方uid，群id，回执标记</p>
+<p>增加了已读回执逻辑后，群消息的流程会有细微的改变</p>
+<p><img src="https://gitee.com/yannickCao/blogimg/raw/master/img/image-20210203174234042.png" alt="image-20210203174234042"></p>
+<p>接收方修改 last_ack_msgid 的流程，会变为</p>
+<ol>
+<li>发送 ack 请求；</li>
+<li>修改 last_ack_msgid ，并且修改已读回执 if_ack 状态；</li>
+<li>查询发送方在线状态；</li>
+<li>如果发送方在线：向发送方实时推送已读回执；</li>
+<li>如果发送方不在线：从关联表里拉取每条消息的已读回执；</li>
+</ol>
+<p>初步结论</p>
+<ul>
+<li>如果发送方在线：会实时被推送已读回执；</li>
+<li>如果发送方不在线：会在下次在线时拉取已读回执；</li>
+</ul>
+<h1 id="四、流程优化方案"><a href="#四、流程优化方案" class="headerlink" title="四、流程优化方案"></a>四、流程优化方案</h1><p>群已读回执的“信息风暴扩散系数”，假设每个群有200个用户，其中40个用户在线，群用户每发送一条群消息，会有</p>
+<ol>
+<li>40个消息，通知给群友；</li>
+<li>40个 ack 修改 last_ack_msgid， 发给服务端；</li>
+<li>40个已读回执，通知给发送方；</li>
+</ol>
+<p>可见，其<font color=red>信息风暴扩散系数很大</font></p>
+<p>同时，需要存储40条 ack 记录；</p>
+<p>群数量，群友数量，群消息数量越来越多之后，存储也会成为问题</p>
+<p>优化方案</p>
+<ol>
+<li><p><strong>群消息的推送，能否改为接收方轮询拉取</strong>：<font color=red>不能</font>，消息接收，需要注重实时性；</p>
+</li>
+<li><p><strong>对于 last_ack_msgid 的修改，真的需要每个群消息都进行 ack 吗</strong>：<font color=red>不需要</font>，可以批量ack，累计收到 N 条群消息后（10条），再向服务器发送一次 last_ack_msgid 的修改请求，同时修改这个请求之前所有请求的已读回执，这样就能将 40 个发送服务端的 ack 请求，降为 1/10；</p>
+<p><strong>累计修改 last_ack_msgid 带来的副作用</strong>：last_ack_msgid 的作用是，记录接收方最近新取得一条群消息，如果不实时更新，可能导致，异常退出时，有一些群消息没来得及更新 last_ack_msgid ，使得下次登录时，拉取到重复的群消息，可以通过在客户端msgid去重，不影响用户体验；</p>
+</li>
+<li><p><strong>发送方在线时，对于已读回执的发送，真的需要实时推送吗：</strong>不需要，发送方每发一条消息，会收到40个回执，采用轮询拉取（例如1分钟一次，一小时也就是60个请求），可以大大降低请求量（或者直接放到应用层 keepalive 的请求里，做到0额外请求）；</p>
+<p><strong>带来的副作用</strong>：<font color=red>已读回执更新不实时</font>，最坏情况下，1分钟才更新回执，当然可以根据性能与产品体验来折中配置轮询时间；</p>
+</li>
+<li><p><strong>如何降低数据量：</strong>回执数据不实核心数据</p>
+<ul>
+<li>已读的消息，可以进行物理删除，而不是标记删除；</li>
+<li>超过N 长时间的回执，归档或者删除；</li>
+</ul>
+</li>
+</ol>
+<h1 id="五、总结："><a href="#五、总结：" class="headerlink" title="五、总结："></a>五、总结：</h1><ul>
+<li><p>对于群消息已读回执，一般来说：</p>
+<ul>
+<li><p>如果发送方在线：实施被<font color=red>推</font>送已读回执；</p>
+</li>
+<li><p>如果发送方不在线：会在下次在线时<font color=red>拉</font>已读回执；</p>
+</li>
+</ul>
+</li>
+<li><p>如果要进行优化，可以</p>
+<ul>
+<li>接收方累计收到 N 条群消息再 <font color=red>批量ack</font>；</li>
+<li>发送方<font color=red>轮询拉取</font>已读回执；</li>
+<li><font color=red>物理删除</font>已读回执数据，定时删除或归档非核心历史数据；</li>
+</ul>
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>yannickCao
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://yannickcao.top/2021/01/29/%E5%A6%82%E4%BD%95%E8%AE%BE%E8%AE%A1%E7%BE%A4%E6%B6%88%E6%81%AF%E5%B7%B2%E8%AF%BB%E5%9B%9E%E6%89%A7/" title="群消息已读回执如何设计？">https://yannickcao.top/2021/01/29/如何设计群消息已读回执/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%9E%B6%E6%9E%84/" rel="tag"># 架构</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/01/29/hexo%E8%AF%AD%E6%B3%95%E5%A4%A7%E5%85%A8/" rel="prev" title="hexo语法大全">
+      <i class="fa fa-chevron-left"></i> hexo语法大全
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/02/01/markdown%E8%AF%AD%E6%B3%95%EF%BC%88%E4%BA%8C%EF%BC%89%EF%BC%9A%E5%9B%BE%E7%9A%84%E4%BD%BF%E7%94%A8/" rel="next" title="markdown语法（二）：图的使用">
+      markdown语法（二）：图的使用 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E8%83%8C%E6%99%AF"><span class="nav-number">1.</span> <span class="nav-text">一、背景</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E7%BE%A4%E6%B6%88%E6%81%AF%E6%8A%95%E9%80%92%E6%B5%81%E7%A8%8B%EF%BC%8C%E4%BB%A5%E5%8F%8A%E5%8F%AF%E8%BE%BE%E6%80%A7%E4%BF%9D%E8%AF%81"><span class="nav-number">2.</span> <span class="nav-text">二、群消息投递流程，以及可达性保证</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1%E3%80%81%E9%9C%80%E6%B1%82%E8%A7%A3%E8%AF%BB"><span class="nav-number">2.1.</span> <span class="nav-text">1、需求解读</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2%E3%80%81%E6%95%B0%E6%8D%AE%E5%BA%93%E8%AE%BE%E8%AE%A1"><span class="nav-number">2.2.</span> <span class="nav-text">2、数据库设计</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E5%B7%B2%E8%AF%BB%E5%9B%9E%E6%89%A7%E6%B5%81%E7%A8%8B"><span class="nav-number">3.</span> <span class="nav-text">三、已读回执流程</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E6%B5%81%E7%A8%8B%E4%BC%98%E5%8C%96%E6%96%B9%E6%A1%88"><span class="nav-number">4.</span> <span class="nav-text">四、流程优化方案</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E6%80%BB%E7%BB%93%EF%BC%9A"><span class="nav-number">5.</span> <span class="nav-text">五、总结：</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="yannickCao"
+      src="/images/avatar.gif">
+  <p class="site-author-name" itemprop="name">yannickCao</p>
+  <div class="site-description" itemprop="description">如何过一天，就是如何过一年</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">6</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yannickCao" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yannickCao" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://blog.csdn.net/u011171619" title="CSDN → https:&#x2F;&#x2F;blog.csdn.net&#x2F;u011171619" rel="noopener" target="_blank"><i class="codiepie fa-fw"></i>CSDN</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://tech.meituan.com/" title="https:&#x2F;&#x2F;tech.meituan.com" rel="noopener" target="_blank">美团技术</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://tech.youzan.com/" title="https:&#x2F;&#x2F;tech.youzan.com" rel="noopener" target="_blank">有赞技术</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.ruanyifeng.com/blog" title="http:&#x2F;&#x2F;www.ruanyifeng.com&#x2F;blog" rel="noopener" target="_blank">阮 一 峰</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2021-01 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">yannickCao</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">10k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">31 分钟</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
