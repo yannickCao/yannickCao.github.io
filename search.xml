@@ -143,6 +143,8 @@
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">rabbitmqctl clear_permissions [-p VHostPath] 用户名</span><br></pre></td></tr></table></figure>
 
 
+
+
 </li>
 </ol>
 ]]></content>
