@@ -1,0 +1,307 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Java开发手册学习：编程规约（三） | yannick小站</title><meta name="keywords" content="Java,代码规范,阿里Java手册"><meta name="author" content="yannickCao"><meta name="copyright" content="yannickCao"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="六、集合处理1、【强制】 关于 hashCode 和 equals 的处理，遵循以下规则： 123只要覆写 equals，就必须覆写 hashCode因为 Set 存储的是不重复对象，依据 hashCode 和 equals 进行判断，所以 Set 存储的对象必须覆写这两个方法如果自定义对象作为Map的键，那么必须覆写 hashCode 和 equals 说明： 因为 String 覆写了 has">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java开发手册学习：编程规约（三）">
+<meta property="og:url" content="https://yannickcao.top/2021/06/09/Java%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C%E5%AD%A6%E4%B9%A0%EF%BC%9A%E7%BC%96%E7%A8%8B%E8%A7%84%E7%BA%A6%EF%BC%88%E4%B8%89%EF%BC%89/index.html">
+<meta property="og:site_name" content="yannick小站">
+<meta property="og:description" content="六、集合处理1、【强制】 关于 hashCode 和 equals 的处理，遵循以下规则： 123只要覆写 equals，就必须覆写 hashCode因为 Set 存储的是不重复对象，依据 hashCode 和 equals 进行判断，所以 Set 存储的对象必须覆写这两个方法如果自定义对象作为Map的键，那么必须覆写 hashCode 和 equals 说明： 因为 String 覆写了 has">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg">
+<meta property="article:published_time" content="2021-06-09T08:24:44.000Z">
+<meta property="article:modified_time" content="2021-06-16T07:30:31.312Z">
+<meta property="article:author" content="yannickCao">
+<meta property="article:tag" content="Java">
+<meta property="article:tag" content="代码规范">
+<meta property="article:tag" content="阿里Java手册">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://yannickcao.top/2021/06/09/Java%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C%E5%AD%A6%E4%B9%A0%EF%BC%9A%E7%BC%96%E7%A8%8B%E8%A7%84%E7%BA%A6%EF%BC%88%E4%B8%89%EF%BC%89/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//hm.baidu.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><script>var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?8dac54f56db4d8cdadabd072c0afd4bc";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: {"limitCount":50,"languages":{"author":"作者: yannickCao","link":"链接: ","source":"来源: yannick小站","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。"}},
+  lightbox: 'mediumZoom',
+  Snackbar: undefined,
+  source: {
+    jQuery: 'https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js',
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+    },
+    fancybox: {
+      js: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2021-06-16 15:30:31'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    })(window)</script><link rel="stylesheet" href="/css/diy.css"><meta name="generator" content="Hexo 5.3.0"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="author-avatar"><img class="avatar-img" src="/img/avatar.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">文章</div><div class="length-num">12</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/tags/"><div class="headline">标签</div><div class="length-num">13</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/categories/"><div class="headline">分类</div><div class="length-num">10</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 个人主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于我</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">yannick小站</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 个人主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于我</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Java开发手册学习：编程规约（三）</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2021-06-09T08:24:44.000Z" title="发表于 2021-06-09 16:24:44">2021-06-09</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2021-06-16T07:30:31.312Z" title="更新于 2021-06-16 15:30:31">2021-06-16</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Java/">Java</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">2.5k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>10分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="六、集合处理"><a href="#六、集合处理" class="headerlink" title="六、集合处理"></a>六、集合处理</h1><p>1、<font color="red">【强制】</font> 关于 hashCode 和 equals 的处理，遵循以下规则：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">只要覆写 equals，就必须覆写 hashCode</span><br><span class="line">因为 Set 存储的是不重复对象，依据 hashCode 和 equals 进行判断，所以 Set 存储的对象必须覆写这两个方法</span><br><span class="line">如果自定义对象作为Map的键，那么必须覆写 hashCode 和 equals</span><br></pre></td></tr></table></figure>
+<p><font color="orange">说明：</font> 因为 String 覆写了 hashCode 和 equals 方法，所以选择 String 作为 key</p>
+<p>2、<font color="red">【强制】</font> 判断所有集合内部的元素是否为空，使用 isEmpty() 方法，而不是 size() == 0 的方式</p>
+<p>在某些集合中，前者的时间复杂度为 O(1)，而且可读性更好</p>
+<p>3、<font color="red">【强制】</font> 在使用 java.util.stream.Collectors 类的 toMap() 方法转为 Map 集合时，一定要使用含有参数类型的 ，参数名为 mergeFunction 的方法，否则当出现相同 key 值时会抛出 IllegalStateException 异常</p>
+<p><font color="orange">说明：</font> 参数 mergeFunction 的作用是当 key 重复时，自定义对 value 的处理策略，(v1, v2) -&gt; v2) 指当key一致时，用新的 value 值替代旧值</p>
+<p><font color="green">正例：</font> </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">List&lt;Pair&lt;String, Double&gt;&gt; pairArrayList = <span class="keyword">new</span> ArrayList&lt;&gt;(<span class="number">3</span>);</span><br><span class="line">pairArrayList.add(<span class="keyword">new</span> Pair&lt;&gt;(<span class="string">&quot;version&quot;</span>, <span class="number">12.10</span>));</span><br><span class="line">pairArrayList.add(<span class="keyword">new</span> Pair&lt;&gt;(<span class="string">&quot;version&quot;</span>, <span class="number">12.19</span>));</span><br><span class="line">pairArrayList.add(<span class="keyword">new</span> Pair&lt;&gt;(<span class="string">&quot;version&quot;</span>, <span class="number">6.28</span>));</span><br><span class="line"><span class="comment">// 生成的 map 集合中只有一个键值对:&#123;version=6.28&#125;</span></span><br><span class="line">Map&lt;String, Double&gt; map = pairArrayList.stream().collect(Collectors.toMap(Pair::getKey, Pair::getValue, (v1, v2) -&gt; v2));</span><br></pre></td></tr></table></figure>
+<p><font color="red">反例：</font> toMap 应该加一个参数 (v1, v2)-&gt;v2 作为 merge 依据</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">String[] departments = <span class="keyword">new</span> String[] &#123;<span class="string">&quot;iERP&quot;</span>, <span class="string">&quot;iERP&quot;</span>, <span class="string">&quot;EIBU&quot;</span>&#125;; </span><br><span class="line"><span class="comment">// 抛出 IllegalStateException 异常</span></span><br><span class="line">Map&lt;Integer, String&gt; map = Arrays.stream(departments)</span><br><span class="line">.collect(Collectors.toMap(String::hashCode, str -&gt; str));</span><br></pre></td></tr></table></figure>
+<p>4、<font color="red">【强制】</font> 当使用 java.util.stream.Collectors 类的 toMap() 方法转为 Map 集合时，一定要注意当 value 为 null 时会抛出 NPE 异常</p>
+<p><font color="red">反例：</font></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">List&lt;Pair&lt;String, Double&gt;&gt; pairArrayList = <span class="keyword">new</span> ArrayList&lt;&gt;(<span class="number">2</span>);</span><br><span class="line">pairArrayList.add(<span class="keyword">new</span> Pair&lt;&gt;(<span class="string">&quot;version1&quot;</span>, <span class="number">8.3</span>));</span><br><span class="line">pairArrayList.add(<span class="keyword">new</span> Pair&lt;&gt;(<span class="string">&quot;version2&quot;</span>, <span class="keyword">null</span>));</span><br><span class="line">Map&lt;String, Double&gt; map = pairArrayList.stream().collect(</span><br><span class="line"><span class="comment">// 抛出 NullPointerException 异常</span></span><br><span class="line">                Collectors.toMap(</span><br><span class="line">                        Pair::getKey,</span><br><span class="line">                        Pair::getValue,</span><br><span class="line">                        (v1, v2) -&gt; v2));</span><br></pre></td></tr></table></figure>
+<p><font color="orange">说明：</font> 在 java.util.HashMap 的  merge 方法里会进行如下的判断：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(value == <span class="keyword">null</span> || remappingFunction == <span class="keyword">null</span>)&#123;</span><br><span class="line">  <span class="keyword">throw</span> <span class="keyword">new</span> NullPointerException();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><font color="green">正例：</font> </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">List&lt;Pair&lt;String, Double&gt;&gt; pairArrayList = <span class="keyword">new</span> ArrayList&lt;&gt;(<span class="number">2</span>);</span><br><span class="line">pairArrayList.add(<span class="keyword">new</span> Pair&lt;&gt;(<span class="string">&quot;version1&quot;</span>, <span class="number">8.3</span>));</span><br><span class="line">pairArrayList.add(<span class="keyword">new</span> Pair&lt;&gt;(<span class="string">&quot;version2&quot;</span>, <span class="keyword">null</span>));</span><br><span class="line">Map&lt;String, Double&gt; map = pairArrayList.stream().collect(</span><br><span class="line">                Collectors.toMap(</span><br><span class="line">                        Pair::getKey,</span><br><span class="line">                  <span class="comment">// 先在值中判断是否为空，为空设定一个默认值</span></span><br><span class="line">                        value -&gt; Optional.ofNullable(value).map</span><br><span class="line">                                (Pair::getValue).orElse(<span class="number">0D</span>),</span><br><span class="line">                        (v1, v2) -&gt; v2));</span><br><span class="line">System.out.println(map);</span><br><span class="line"><span class="comment">// 输出结果</span></span><br><span class="line"><span class="comment">// &#123;version2=0.0, version1=8.3&#125;</span></span><br></pre></td></tr></table></figure>
+<p>5、<font color="red">【强制】</font> ArrayList 的 subList 结果不可强转成 ArrayList，否则会抛出 ClassCastException 异常：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java.util.RandomAccessSubList cannot be cast to java.util.ArrayList</span><br></pre></td></tr></table></figure>
+<p><font color="orange">说明：</font> subList() 返回的是 ArrayList 的内部类 SubList，并不是 ArrayList 本身，而是 ArrayList 的一个视图，对于SubList 的所有操作最终会反映到原列表上</p>
+<p>6、<font color="red">【强制】</font>使用 Map 的方法 keySet() / values() / entrySet() 返回集合对象时，不可以对其添加元素操作，否则会抛出 UnsupportedOperationException 异常</p>
+<p>7、<font color="red">【强制】</font> Collections 类返回的对象，如：emptyList() / singletonList() 等就是 immutable list，不可对其进行添加或者删除元素操作</p>
+<p><font color="red">反例：</font> 如果查询无结果，返回 Collections.emptyList() 空集对象，调用方一旦进行了添加元素的操作，就会触发 UnsupportedOperationException 异常</p>
+<p>8、<font color="red">【强制】</font> 在 subList 场景中，高度注意对父集合元素的增加和删除，均会导致子列表的遍历、增加、删除产生 ConcurrentModificationException 异常</p>
+<p>9、<font color="red">【强制】</font> 使用集合转换数组的方法，必须使用集合的 toArray(T[] array)，传入的是类型完全一致，长度为0 的空数组</p>
+<p><font color="red">反例：</font> 直接使用 toArray 无参方法，返回值只能是 Object[] 类，若强制转其他类型数组将会出现 ClassCastException 错误</p>
+<p><font color="green">正例：</font> </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">List&lt;String&gt; list = <span class="keyword">new</span> ArrayList&lt;&gt;(<span class="number">2</span>);</span><br><span class="line">list.add(<span class="string">&quot;guan&quot;</span>);</span><br><span class="line">list.add(<span class="string">&quot;bao&quot;</span>);</span><br><span class="line">String[] array = list.toArray(<span class="keyword">new</span> String[<span class="number">0</span>]);</span><br></pre></td></tr></table></figure>
+<p><font color="orange">说明：</font> 在使用 toArray 带参方法，数组空间大小的length</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">等于0：动态创建与 size 相同的数组，性能最好</span><br><span class="line">大于 0 但小于 size：重新创建大小等于 size 的数组，增加 GC 的负担</span><br><span class="line">等于 size：在高并发的情况下，数组创建完成之前，size 正在变大的情况下，也会演变成情况 2</span><br><span class="line">大于 size：空间浪费，且在 size 处插入 null 值，存在 NPE 隐患</span><br></pre></td></tr></table></figure>
+<p>10、<font color="red">【强制】</font> 在使用 Collection 接口任何实现类的 addAll() 方法时，都要对输入的集合参数进行 NPE 判断</p>
+<p><font color="orange">说明：</font> 在 ArrayList#addAll 方法的第一行代码即 Object[] a = c.toArray(); 其中 c 为输入集合参数，如果为 null 会抛出 NPE 异常</p>
+<p>11、<font color="red">【强制】</font> 使用工具类 Arrays.asList() 把数组转换成集合时，不能使用其修改集合相关的方法，他的 add/remove/clear 方法会抛出 UnsupportedOperationException 异常</p>
+<p><font color="orange">说明：</font> asList 的返回对象是一个 Arrays 内部类，并没有实现集合的修改方法。 Arrays.asList 体现的是适配器模式，只是转换接口，后台的数据仍是数组</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">String[] str = <span class="keyword">new</span> String[]&#123;<span class="string">&quot;chen&quot;</span>, <span class="string">&quot;yang&quot;</span>, <span class="string">&quot;hao&quot;</span>&#125;;</span><br><span class="line">List list = Arrays.asList(str);</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>list.add(“test”); 运行时会报 java.lang.UnsupportedOperationException 异常</p>
+</li>
+<li><p>如果在 asList 后通过 str[0]=”test”赋值，list 的数据也会变化</p>
+</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">String[] str = <span class="keyword">new</span> String[]&#123;<span class="string">&quot;chen&quot;</span>, <span class="string">&quot;yang&quot;</span>, <span class="string">&quot;hao&quot;</span>&#125;;</span><br><span class="line">List list = Arrays.asList(str);</span><br><span class="line">System.out.println(list);</span><br><span class="line">str[<span class="number">0</span>] = <span class="string">&quot;test&quot;</span>;</span><br><span class="line">System.out.println(list);</span><br><span class="line"><span class="comment">// 输出结果</span></span><br><span class="line"><span class="comment">// [chen, yang, hao]</span></span><br><span class="line"><span class="comment">// [test, yang, hao]</span></span><br></pre></td></tr></table></figure>
+<p>12、<font color="red">【强制】</font> 泛型通配符 &lt;? extends T&gt; 来接收返回的数据，此写法的泛型集合不能使用 add 方法；而 &lt;? super T&gt; 不能使用 get 方法，两者在接口调用赋值的场景中容易出错</p>
+<p><font color="orange">说明：</font> 扩展说一下 PECS（Producer Extends Cousumer Super）原则</p>
+<blockquote>
+<p>第一：频繁往外读取内容的，适合用 &lt;? extends T&gt;</p>
+<p>第二：经常往里面插入内容，适合用&lt;? super T&gt;</p>
+</blockquote>
+<p>13、<font color="red">【强制】</font> 在无泛型限制定义的集合赋值给泛型限制的集合时，在使用集合元素时，需要进行 instanceof 判断，避免抛出 ClassCastException 异常</p>
+<p><font color="orange">说明：</font> 泛型是在 JDK5 后出现，考虑到向前兼容，编译器是允许非泛型集合与泛型集合互相赋值</p>
+<p><font color="red">反例：</font> </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">List&lt;String&gt; generics = <span class="keyword">null</span>;</span><br><span class="line">List notGenerics = <span class="keyword">new</span> ArrayList(<span class="number">10</span>);</span><br><span class="line">notGenerics.add(<span class="keyword">new</span> Object());</span><br><span class="line">notGenerics.add(<span class="keyword">new</span> Integer(<span class="number">1</span>));</span><br><span class="line">generics = notGenerics;</span><br><span class="line">String str = generics.get(<span class="number">0</span>);</span><br></pre></td></tr></table></figure>
+<p>14、<font color="red">【强制】</font> 不要在 forEach 循环里进行元素的 remove 、add 操作，remove 元素请使用 Iterator 方式，如果并发操作，需要对 Iterator 对象加锁</p>
+<p><font color="green">正例：</font> </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">List&lt;String&gt; list = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">list.add(<span class="string">&quot;1&quot;</span>);</span><br><span class="line">list.add(<span class="string">&quot;2&quot;</span>);</span><br><span class="line">Iterator&lt;String&gt; it = list.iterator();</span><br><span class="line"><span class="keyword">while</span>(iterator.hasNext())&#123;</span><br><span class="line">  String item = it.next();</span><br><span class="line">  <span class="keyword">if</span>(符合删除元素条件)&#123;</span><br><span class="line">    iterator.remove();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><font color="red">反例：</font> </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span>(String item : list)&#123;</span><br><span class="line">  <span class="keyword">if</span>(<span class="string">&quot;2&quot;</span>.equals(item))&#123;</span><br><span class="line">    list.remove(item)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 会报 java.util.ConcurrentModificationException 异常</span></span><br><span class="line"><span class="comment">// modCount用于记录变更次数,当add或者remove时,都会自增1, expectedModCount 初始化为 modCount</span></span><br><span class="line"><span class="function"><span class="keyword">final</span> <span class="keyword">void</span> <span class="title">checkForComodification</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (modCount != expectedModCount)</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> ConcurrentModificationException();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>15、<font color="red">【强制】</font> 在 JDK 7 版本及以上， Comparator 实现类要满足如下三个条件，不然 Arrays.sort，Collections.sort 会抛出 IllegalArgumentException 异常</p>
+<blockquote>
+<p>1、x，y 的比较结果 和 y，x 的比较结果相反</p>
+<p>2、x &gt; y, y &gt; z,则 x &gt; z</p>
+<p>3、x = y，则 x，z比较结果和 y，z 比较结果相同</p>
+</blockquote>
+<p><font color="red">反例：</font> 没有处理值相等的情况</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">compareTo</span><span class="params">(Person o)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">this</span>.age &gt; o.age? <span class="number">1</span> : -<span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><font color="green">正例：</font></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 升序</span></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">compareTo</span><span class="params">(Person o)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">this</span>.age - o.age;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 降序</span></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">compareTo</span><span class="params">(Person o)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> o.age - <span class="keyword">this</span>.age;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>16、<font color="orange">【推荐】</font> 集合泛型定义事，在 JDK 7 及以上，使用 diamond 语法或者全省略</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// diamond 方式，即&lt;&gt;</span></span><br><span class="line">HashMap&lt;String, String&gt; userCache = <span class="keyword">new</span> HashMap&lt;&gt;(<span class="number">16</span>);</span><br><span class="line"><span class="comment">// 全省略方式</span></span><br><span class="line">ArrayList&lt;User&gt; users = <span class="keyword">new</span> ArrayList(<span class="number">10</span>);</span><br></pre></td></tr></table></figure>
+<p>17、<font color="orange">【推荐】</font> 集合初始化时，指定集合初始值大小</p>
+<p><font color="orange">说明：</font> HashMap 使用 HashMap(int initialCapacity) 初始化，如果暂时无法确定集合大小，那么指定默认值 （16）即可</p>
+<p><font color="green">正例：</font> initialCapacity = (需要存储的元素个数 / 负载因子) + 1。负载因子 （loader factor）默认为 0.75，  如果暂时无法确定初始值，设置为16</p>
+<p><font color="red">反例：</font> HashMap 需要放置 1024 个元素，由于没有设置容量初始大小，随着元素增加而被迫不断扩容，resize() 方法总共会调用 8 次，反复重建哈希表和数据迁移。当放置的集合元素个数达到千万级的时候会影响程序性能。</p>
+<p>18、<font color="orange">【推荐】</font> 使用 entrySet 遍历 Map 类集合 KV，而不是 keySet 方式进行遍历</p>
+<p><font color="orange">说明：</font> keySet 其实是遍历了 2 次，一次是为了转为 Iterator 对象，另一次是从 hashMap 中取出 key 对应的 value。 而 entrySet 只是遍历了一次就把 key 和 value 都放到 entry 中，效率更高，如果是 JDK8 ,使用 Map.forEach 方法</p>
+<p><font color="green">正例：</font>values() 返回的是 V 值集合，是一个 list 集合对象；keySet() 返回的是 K 值集合，是一个 Set 集合对象，entrySet() 返回的是 K-V 值组合集合</p>
+<p>19 、<font color="orange">【推荐】</font>高度注意 Map 类集合 K/V 能不能储存 null 值的情况，</p>
+<table>
+<thead>
+<tr>
+<th>集合类</th>
+<th>key</th>
+<th>value</th>
+<th>super</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Hashtable</td>
+<td>不允许为 null</td>
+<td>不允许为 null</td>
+<td>Dictionary</td>
+<td>线程安全</td>
+</tr>
+<tr>
+<td>ConcurrentHashMap</td>
+<td>不允许为 null</td>
+<td>不允许为 null</td>
+<td>AbstractMap</td>
+<td>锁分段技术(JDK8:CAS)</td>
+</tr>
+<tr>
+<td>TreeMap</td>
+<td>不允许为 null</td>
+<td>允许为 null</td>
+<td>AbstractMap</td>
+<td>线程不安全</td>
+</tr>
+<tr>
+<td>HashMap</td>
+<td>允许为 null</td>
+<td>允许为 null</td>
+<td>AbstractMap</td>
+<td>线程不安全</td>
+</tr>
+</tbody></table>
+<p><font color="red">反例：</font> 由于 HashMap 的干扰，但是 ConcurrentHashMap 是不允许存储 null 值的，会抛出 NPE 异常</p>
+<p>20、<font color="green">【参考】</font>合理利用好的集合有序性（sort）和稳定性（order），避免集合的无序性（unsort）和不稳定行（unorder）带来的负面影响</p>
+<p><font color="orange">说明：</font> 有序性是指遍历的结果是按某种比较规则依次排列的，稳定性值集合每次遍历的元素次序是一定的</p>
+<table>
+<thead>
+<tr>
+<th>集合</th>
+<th>有序性</th>
+<th>稳定性</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ArrayList</td>
+<td>unsort</td>
+<td>order</td>
+</tr>
+<tr>
+<td>HashMap</td>
+<td>unsort</td>
+<td>unorder</td>
+</tr>
+<tr>
+<td>TreeSet</td>
+<td>sort</td>
+<td>order</td>
+</tr>
+</tbody></table>
+<p>21、<font color="green">【参考】</font> 利用 Set 元素唯一的特性，可以快速对一个集合进行去重操作，避免使用 List 的 contains() 进行遍历去重或者判断包含操作；</p>
+<h1 id="七、并发处理"><a href="#七、并发处理" class="headerlink" title="七、并发处理"></a>七、并发处理</h1></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">yannickCao</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://yannickcao.top/2021/06/09/Java%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C%E5%AD%A6%E4%B9%A0%EF%BC%9A%E7%BC%96%E7%A8%8B%E8%A7%84%E7%BA%A6%EF%BC%88%E4%B8%89%EF%BC%89/">https://yannickcao.top/2021/06/09/Java%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C%E5%AD%A6%E4%B9%A0%EF%BC%9A%E7%BC%96%E7%A8%8B%E8%A7%84%E7%BA%A6%EF%BC%88%E4%B8%89%EF%BC%89/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://yannickcao.top" target="_blank">yannick小站</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Java/">Java</a><a class="post-meta__tags" href="/tags/%E4%BB%A3%E7%A0%81%E8%A7%84%E8%8C%83/">代码规范</a><a class="post-meta__tags" href="/tags/%E9%98%BF%E9%87%8CJava%E6%89%8B%E5%86%8C/">阿里Java手册</a></div><div class="post_share"><div class="social-share" data-image="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-full"><a href="/2021/06/08/Java%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C%E5%AD%A6%E4%B9%A0%EF%BC%9A%E7%BC%96%E7%A8%8B%E8%A7%84%E7%BA%A6%EF%BC%88%E4%BA%8C%EF%BC%89/"><img class="prev-cover" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">Java开发手册学习：编程规约（二）</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span> 相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2021/06/07/Java开发手册学习：编程规约（一）/" title="Java开发手册学习：编程规约（一）"><img class="cover" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-06-07</div><div class="title">Java开发手册学习：编程规约（一）</div></div></a></div><div><a href="/2021/06/08/Java开发手册学习：编程规约（二）/" title="Java开发手册学习：编程规约（二）"><img class="cover" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-06-08</div><div class="title">Java开发手册学习：编程规约（二）</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="card-info-avatar is-center"><img class="avatar-img" src="/img/avatar.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/><div class="author-info__name">yannickCao</div><div class="author-info__description">如何过一天，就是如何过一年,就是如何过一辈子</div></div><div class="card-info-data"><div class="card-info-data-item is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">12</div></a></div><div class="card-info-data-item is-center"><a href="/tags/"><div class="headline">标签</div><div class="length-num">13</div></a></div><div class="card-info-data-item is-center"><a href="/categories/"><div class="headline">分类</div><div class="length-num">10</div></a></div></div><a class="button--animated" id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/yannickCao/yannickcao.github.io"><i class="fab fa-github"></i><span>全球最大同性交友平台</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn card-announcement-animation"></i><span>公告</span></div><div class="announcement_content">我是要成为全栈工程师的男人！</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E9%9B%86%E5%90%88%E5%A4%84%E7%90%86"><span class="toc-number">1.</span> <span class="toc-text">六、集合处理</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%83%E3%80%81%E5%B9%B6%E5%8F%91%E5%A4%84%E7%90%86"><span class="toc-number">2.</span> <span class="toc-text">七、并发处理</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2021/06/09/Java%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C%E5%AD%A6%E4%B9%A0%EF%BC%9A%E7%BC%96%E7%A8%8B%E8%A7%84%E7%BA%A6%EF%BC%88%E4%B8%89%EF%BC%89/" title="Java开发手册学习：编程规约（三）"><img src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Java开发手册学习：编程规约（三）"/></a><div class="content"><a class="title" href="/2021/06/09/Java%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C%E5%AD%A6%E4%B9%A0%EF%BC%9A%E7%BC%96%E7%A8%8B%E8%A7%84%E7%BA%A6%EF%BC%88%E4%B8%89%EF%BC%89/" title="Java开发手册学习：编程规约（三）">Java开发手册学习：编程规约（三）</a><time datetime="2021-06-09T08:24:44.000Z" title="发表于 2021-06-09 16:24:44">2021-06-09</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/06/08/Java%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C%E5%AD%A6%E4%B9%A0%EF%BC%9A%E7%BC%96%E7%A8%8B%E8%A7%84%E7%BA%A6%EF%BC%88%E4%BA%8C%EF%BC%89/" title="Java开发手册学习：编程规约（二）"><img src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Java开发手册学习：编程规约（二）"/></a><div class="content"><a class="title" href="/2021/06/08/Java%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C%E5%AD%A6%E4%B9%A0%EF%BC%9A%E7%BC%96%E7%A8%8B%E8%A7%84%E7%BA%A6%EF%BC%88%E4%BA%8C%EF%BC%89/" title="Java开发手册学习：编程规约（二）">Java开发手册学习：编程规约（二）</a><time datetime="2021-06-08T09:33:12.000Z" title="发表于 2021-06-08 17:33:12">2021-06-08</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/06/07/Java%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C%E5%AD%A6%E4%B9%A0%EF%BC%9A%E7%BC%96%E7%A8%8B%E8%A7%84%E7%BA%A6%EF%BC%88%E4%B8%80%EF%BC%89/" title="Java开发手册学习：编程规约（一）"><img src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Java开发手册学习：编程规约（一）"/></a><div class="content"><a class="title" href="/2021/06/07/Java%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C%E5%AD%A6%E4%B9%A0%EF%BC%9A%E7%BC%96%E7%A8%8B%E8%A7%84%E7%BA%A6%EF%BC%88%E4%B8%80%EF%BC%89/" title="Java开发手册学习：编程规约（一）">Java开发手册学习：编程规约（一）</a><time datetime="2021-06-07T03:33:24.000Z" title="发表于 2021-06-07 11:33:24">2021-06-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/06/01/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F%EF%BC%88%E4%B8%80%EF%BC%89%EF%BC%9A%E5%9F%BA%E7%A1%80%E8%AF%AD%E6%B3%95/" title="正则表达式语法学习"><img src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="正则表达式语法学习"/></a><div class="content"><a class="title" href="/2021/06/01/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F%EF%BC%88%E4%B8%80%EF%BC%89%EF%BC%9A%E5%9F%BA%E7%A1%80%E8%AF%AD%E6%B3%95/" title="正则表达式语法学习">正则表达式语法学习</a><time datetime="2021-06-01T07:47:52.000Z" title="发表于 2021-06-01 15:47:52">2021-06-01</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/05/31/SpringMvc/" title="SpringMvc"><img src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="SpringMvc"/></a><div class="content"><a class="title" href="/2021/05/31/SpringMvc/" title="SpringMvc">SpringMvc</a><time datetime="2021-05-31T07:04:24.000Z" title="发表于 2021-05-31 15:04:24">2021-05-31</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2021 By yannickCao</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/medium-zoom/dist/medium-zoom.min.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page/instantpage.min.js" type="module"></script><script src="/js/search/local-search.js"></script><script>var preloader = {
+  endLoading: () => {
+    document.body.style.overflow = 'auto';
+    document.getElementById('loading-box').classList.add("loaded")
+  },
+  initLoading: () => {
+    document.body.style.overflow = '';
+    document.getElementById('loading-box').classList.remove("loaded")
+
+  }
+}
+window.addEventListener('load',preloader.endLoading())</script><div class="js-pjax"></div><script src="/js/baidu.js"><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

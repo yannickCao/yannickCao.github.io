@@ -1,6 +1,272 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>Java开发手册学习：编程规约（一）</title>
+    <url>/2021/06/07/Java%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C%E5%AD%A6%E4%B9%A0%EF%BC%9A%E7%BC%96%E7%A8%8B%E8%A7%84%E7%BA%A6%EF%BC%88%E4%B8%80%EF%BC%89/</url>
+    <content><![CDATA[<p>本手册以 Java 开发者为中 心视角，划分为编程规约、异常日志、单元测试、安全规约、MySQL 数据库、工程结构、设计规约 七个维度，再根据内容特征，细分成若干二级子目录。另外，依据约束力强弱及故障敏感性，规约依 次分为<font color="red">【强制】</font>、<font color="orange">【推荐】</font>、<font color="green">【参考】</font>三大类。在延伸信息中，<font color="orange">“说明”</font>对规约做了适当扩展和解释; <font color="green">“正例”</font>提倡什么样的编码和实现方式;<font color="red">“反例”</font>说明需要提防的雷区，以及真实的错误案例。</p>
+<a id="more"></a>
+
+<h1 id="一、命名风格"><a href="#一、命名风格" class="headerlink" title="一、命名风格"></a>一、命名风格</h1><p>1、<font color="red">【强制】</font> 代码中的命名均不能以 <strong>下划线或美元符号 **开始，也不能以 **下划线或者美元符号</strong> 结束</p>
+<p>2、<font color="red">【强制】</font> 所有变成相关的命名 <strong>严禁拼音和英文混合</strong>，更 <strong>不允许直接使用中文</strong></p>
+<p><font color="red">反例：</font> DaZhePromotion 、 getPingFenByName</p>
+<p>3、<font color="red">【强制】</font> 代码和注释中避免使用任何语言的 <strong>种族歧视语言</strong></p>
+<p>4、<font color="red">【强制】</font> 类名使用 UpperCamleCase 风格， 但以下情形例外 DO / BO / DTO/ VO / AO/ PO / UID</p>
+<p>DTO：前后端交互：在后端，是 controller 接收的 java 对象，在前端，是 json，也可以是 ajax 请求数据体；</p>
+<p>微服务：本身的一个隐含意义就是能够完整表达一个业务模块的输出，如果服务间互相独立就叫DTO，如果服务间并非是一个完整业务则为BO</p>
+<p>VO（value object）值对象：一般是展示用的数据，主要形式是返回给前端 json 展示的对象。一般会对基础信息进行转义</p>
+<p>PO（Persistant Object）持久化对象/DO（Data Object）数据对象：与Entity、domain等概念一样，指代数据库表对应的对象，只有get/set 没有逻辑；</p>
+<p>BO（Business Object）：业务对象</p>
+<p>DAO（Data Access Object）：数据访问对象</p>
+<p>5、<font color="red">【强制】</font> 方法名、参数名、成员变量、局部变量统一使用 <strong>lowerCamelCase</strong> 风格</p>
+<p>6、<font color="red">【强制】</font> 常量命名全部大写，单词间用下划线隔开，语义完整表达</p>
+<p><font color="green">正例：</font> MAX_STOCK_COUNT / CACHE_EXPIRED_TIME</p>
+<p><font color="red">反例：</font> MAX_COUNT / EXPIRED_TIME</p>
+<p>7、<font color="red">【强制】</font> 抽象类命名使用 Abstract 或 Base 开头，异常类命名使用 Exception 结尾； 测试类命名以他要测试的类名开始+ Test 结束</p>
+<p>8、<font color="red">【强制】</font> 类型与中括号紧挨相连以表示数组；</p>
+<p><font color="green">正例：</font> int[] arrayDemo</p>
+<p><font color="red">反例：</font> int arrayDemo[]</p>
+<p>9、<font color="red">【强制】</font>POJO 类中的任何布尔类型的变量，都不要加 is 前缀，否则部分框架解析会引起序列化错误</p>
+<p><font color="orange">说明：</font> 数据库中 是否的字段用 is_xxx 的命名方式，所以，需要再 &lt;resultMap&gt; 设置从  is_xxx 到 xxx 的映射关系</p>
+<p><font color="red">反例：</font> 定义基本数据类型 Boolean isDeleted 的属性，他的方法是 isDeleted()，框架在反向解析的时候，误以为对应的属性名是 deleted，导致属性获取不到，进而异常</p>
+<p>10、<font color="red">【强制】</font> 包名统一使用小写，点分隔符直接有且仅有一个自然语义的英语单词，包名统一使用 <strong>单数</strong> 形式，但是类名如果有复数含义，类名可以用复数形式</p>
+<p>11、<font color="red">【强制】</font> 避免在父子类的成员变量之间、或者不同代码块的局部变量之间采取完全相同的命名，使可理解性降低</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ConfusingName</span> </span>&#123;</span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">int</span> stock;</span><br><span class="line">  </span><br><span class="line">  <span class="comment">// 非 setter / getter 的参数名称，不允许与本类成员变量同名</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">get</span><span class="params">(String ali)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>()&#123;</span><br><span class="line">      <span class="keyword">final</span> <span class="keyword">int</span> money = <span class="number">666</span>;</span><br><span class="line">    	……</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++)&#123;</span><br><span class="line">      <span class="comment">// 在同一个方法体中，不允许与其他代码块中的 money 命名相同</span></span><br><span class="line">      <span class="keyword">final</span> <span class="keyword">int</span> money = <span class="number">12345</span>;</span><br><span class="line">      ……</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="class"><span class="keyword">class</span> <span class="title">Son</span> <span class="keyword">extends</span> <span class="title">ConfusingName</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 不允许与父类的成员变量同名</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">int</span> stock;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>12、<font color="red">【强制】</font> 杜绝完全不规范的缩写，避免望文不生义</p>
+<p><font color="red">反例：</font> AbstractClass 缩写成 AbsClass； condition 缩写成 condi</p>
+<p>13、<font color="orange">【推荐】</font> 任何自定义编程元素在命名时，使用尽量完整的单词组合来表达</p>
+<p>14、<font color="orange">【推荐】</font> 在常量与变量的命名时，表示类型的名词放在词尾，以提升辨识度</p>
+<p><font color="green">正例：</font> startTime / workQueue / nameList / END_TIME</p>
+<p><font color="red">反例：</font> startedAt / QueueOfWork / listName / TIME_END</p>
+<p>15、<font color="orange">【推荐】</font> 如果模块、接口、类、方法都是用了设计模式，在命名时需要体现出具体模式</p>
+<p><font color="green">正例：</font> OrderFactory、LoginProxy、 ResourceObserver</p>
+<p>16、<font color="orange">【推荐】</font> 接口类中的方法和属性不要加任何修饰符号（包括public），保持代码简洁，并加上有效的javaDoc注释。尽量不要在接口里定义变量，如果一定要定义变量，确定与接口方法相关，并且是整个应用的基础变量</p>
+<p><font color="green">正例：</font> 接口方法签名 void commit();   接口基础常量 String COMPANY = “alibaba”;</p>
+<p><font color="red">反例：</font> 接口方法定义 public abstract void f();</p>
+<p>17、接口和实现类的命名有两套规则</p>
+<p>1）<font color="red">【强制】</font> 对于 Service 和 DAO类，基于 SOA 的理念，暴露出来的服务一定是接口，内部的实现类用 Impl 的后缀与接口区别</p>
+<p>2）<font color="orange">【推荐】</font> 如果是形容能力的接口，取对应的形容词为接口名（通常是-able的形容词）</p>
+<p><font color="green">正例：</font> AbstractTranslator 实现 Translatable 接口</p>
+<p>18、<font color="green">【参考】</font> 枚举类命带上 Enum 后缀，枚举成员名称需要全大写，单词间用下划线隔开； 枚举其实是特殊的常量类，且构造方法被默认强制是私有</p>
+<p>19、<font color="green">【参考】</font> 各层命名规范：</p>
+<p>A、Service / DAO 层方法命名规约</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">获取单个对象的方法用 **get** 做前缀</span><br><span class="line">获取多个对象的方法用 **list** 做前缀，复数结尾，如：listObjects</span><br><span class="line">获取统计值的方法用 **count** 做前缀</span><br><span class="line">插入的方法用 **save / insert** 做前缀</span><br><span class="line">删除的方法用 **remove / delete**  做前缀</span><br><span class="line">修改的方法用 **update**  做前缀</span><br></pre></td></tr></table></figure>
+<p>B、领域模型命名规则</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">数据对象：xxxDO，xxx为数据库名</span><br><span class="line">数据传输对象：xxxDTO，xxx为业务领域相关的名称</span><br><span class="line">展示对象：xxxVO，xxx一般是网页名称</span><br><span class="line">POJO是 DO、DTO、BO、VO 的统称，禁止命名成 xxxPOJO</span><br></pre></td></tr></table></figure>
+
+
+<h1 id="二、常量定义"><a href="#二、常量定义" class="headerlink" title="二、常量定义"></a>二、常量定义</h1><p>1、<font color="red">【强制】</font> 不允许任何魔法值（即未经定义的常量）直接出现在代码中</p>
+<p><font color="red">反例：</font> </p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// A 开发设置了前缀</span></span><br><span class="line">String keyA = “taobao_” + id；</span><br><span class="line"><span class="comment">// B 开发调用时漏掉 _</span></span><br><span class="line">String keyB = “taobao” + id；</span><br></pre></td></tr></table></figure>
+<p><font color="green">正例：</font> </p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"> String PREFIX = <span class="string">&quot;taobao&quot;</span>;</span><br><span class="line">String key = PREFIX + id;</span><br></pre></td></tr></table></figure>
+<p>2、<font color="red">【强制】</font> 在 long 或者 Long 赋值时，数值后使用大写字母L 不能用小写字母l ，小写字母容易饿跟数字1混淆</p>
+<p>3、<font color="orange">【推荐】</font> 不要用一个常量类维护所有常量，要按照常量功能进行归类，分开维护</p>
+<p>4、<font color="orange">【推荐】</font> 常量的附庸层次有五层，跨应用共享常量、应用内共享常量、子工程内共享常量、包内共享常量、类内共享常量</p>
+<ul>
+<li>跨应用共享常量：放置在二方库中，通常是 client.jar 中的 constant 目录中</li>
+<li>应用内共享常量：放置在一方库中，通常是子模块中的 constant 目录中</li>
+<li>子工程内部共享变量：即在当前子工程的 constant 目录中</li>
+<li>包内共享常量：即在当前包下单独的 constant 中</li>
+<li>类内共享常量：直接在类内部 private static final 定义</li>
+</ul>
+<p>5、<font color="orange">【推荐】</font> 如果变量值仅在一个范围内变化，用 enum 类型来定义</p>
+<h1 id="三、代码格式"><a href="#三、代码格式" class="headerlink" title="三、代码格式"></a>三、代码格式</h1><p>1、<font color="red">【强制】</font> 如果是大括号内容为空，则简洁写成 {} 即可，大括号中间无需换行和空格；如果是非空代码块则</p>
+<ul>
+<li>左大括号前不换行</li>
+<li>左大括号后换行</li>
+<li>右大括号前换行</li>
+<li>右大括号后还有 else 等代码则不换行；表示终止的后大括号后必须换行</li>
+</ul>
+<p>2、<font color="red">【强制】</font> 左小括号和右边相邻字符之间不出现空格；右小括号和左边相邻字符之间也不出现空格；</p>
+<p>而左大括号前需要加空格</p>
+<p><font color="green">正例：</font> if (a==b)</p>
+<p><font color="red">反例：</font> if( a==b )</p>
+<p>3、<font color="red">【强制】</font> if / for / while / switch / do 等保留字与括号之间必须加空格</p>
+<p>4、<font color="red">【强制】</font> 任何二目、三目运算符的左右两边都需要加一个空格（包括复制运算符 =，逻辑运算符 &amp;，加减乘除符号等）</p>
+<p>5、<font color="red">【强制】</font> 采用4个空格缩进，禁止使用tab字符</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span> <span class="params">(String[] args)</span></span>&#123;</span><br><span class="line">    <span class="comment">// 缩进4个空格</span></span><br><span class="line">    String say = <span class="string">&quot;hello&quot;</span>;</span><br><span class="line">    <span class="comment">// 运算符的左右必须有一个空格</span></span><br><span class="line">    <span class="keyword">int</span> num = <span class="number">1</span> + <span class="number">2</span>;</span><br><span class="line">    <span class="keyword">int</span> flag = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">if</span> (flag == <span class="number">0</span>)&#123;</span><br><span class="line">       ……</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 左大括号前加空格且不换行;左大括号后换行</span></span><br><span class="line">    <span class="keyword">if</span> (flag == <span class="number">1</span>) &#123;</span><br><span class="line">      System.out.println(<span class="string">&quot;world&quot;</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123; <span class="comment">// 右大括号前换行，右大括号后有 else，不用换行</span></span><br><span class="line">      System.out.println(<span class="string">&quot;ok&quot;</span>);</span><br><span class="line">    &#125;<span class="comment">// 在右大括号后直接结束，则必须换行</span></span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>6、<font color="red">【强制】</font> 注释的双斜线与注释内容之间有且只有一个空格</p>
+<p>7、<font color="red">【强制】</font> 在进行类型转换的时候，右括号与强制转换值之间不需要任何看空个隔开(int)value</p>
+<p>8、<font color="red">【强制】</font> 单行字符数限制不超过120个，超出需要换行，遵循以下规则</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">第二行相对第一行缩进4个字符，从第三行开始，不再继续缩进（跟第二行对齐）</span><br><span class="line">运算符与下文一起换行</span><br><span class="line">方法调用的点符号与下文一起换行</span><br><span class="line">方法调用中的多个参数需要换行时，在逗号后换行</span><br><span class="line">在括号前不要换行</span><br></pre></td></tr></table></figure>
+<p><font color="green">正例：</font> </p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">StringBuilder sb = <span class="keyword">new</span> StringBuilder();</span><br><span class="line"> <span class="comment">// 超过 120 个字符的情况下，换行缩进 4 个空格，并且方法前的点号一起换行</span></span><br><span class="line">sb.append(<span class="string">&quot;yang&quot;</span>).append(<span class="string">&quot;hao&quot;</span>)...</span><br><span class="line">		.append(<span class="string">&quot;chen&quot;</span>)...</span><br><span class="line">    .append(<span class="string">&quot;chen&quot;</span>)...</span><br><span class="line">    .append(<span class="string">&quot;chen&quot;</span>);</span><br></pre></td></tr></table></figure>
+<p><font color="red">反例：</font> </p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">	StringBuilder sb = <span class="keyword">new</span> StringBuilder();</span><br><span class="line"><span class="comment">// 超过 120 个字符的情况下，不要在括号前换行 </span></span><br><span class="line">	sb.append(<span class="string">&quot;you&quot;</span>).append(<span class="string">&quot;are&quot;</span>)...append</span><br><span class="line">		(<span class="string">&quot;lucky&quot;</span>);</span><br><span class="line"><span class="comment">// 参数很多的方法调用可能超过 120 个字符，逗号后才是换行处</span></span><br><span class="line">	method(args1, args2, args3, ... </span><br><span class="line">         , argsX);</span><br></pre></td></tr></table></figure>
+<p>9、<font color="red">【强制】</font> 方法参数在定义和传入时，多个参数逗号后面必须加空格</p>
+<p>10、<font color="red">【强制】</font> IDE的 text file encoding 设置为 UTF-8；IDE 中文件的换行符使用 Unix 格式，不要使用 Windows 格式</p>
+<p>11、<font color="orange">【推荐】</font> 单个方法的总行数不超过80行（不包括注释之外，左右大括号，方法内代码，空行，回车）</p>
+<p>12、<font color="orange">【推荐】</font> 没有必要增加若干个空格来让变量的赋值等号与上一行对应位置的等号对齐</p>
+<p>13、<font color="orange">【推荐】</font> 不同逻辑，不同语义，不同业务的代码之间插入一个空行分隔开来提升可读性（但没有必要插入多个空行）</p>
+]]></content>
+      <categories>
+        <category>Java</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+        <tag>代码规范</tag>
+        <tag>阿里Java手册</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Java开发手册学习：编程规约（三）</title>
+    <url>/2021/06/09/Java%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C%E5%AD%A6%E4%B9%A0%EF%BC%9A%E7%BC%96%E7%A8%8B%E8%A7%84%E7%BA%A6%EF%BC%88%E4%B8%89%EF%BC%89/</url>
+    <content><![CDATA[<h1 id="六、集合处理"><a href="#六、集合处理" class="headerlink" title="六、集合处理"></a>六、集合处理</h1><p>1、<font color="red">【强制】</font> 关于 hashCode 和 equals 的处理，遵循以下规则：</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">只要覆写 equals，就必须覆写 hashCode</span><br><span class="line">因为 Set 存储的是不重复对象，依据 hashCode 和 equals 进行判断，所以 Set 存储的对象必须覆写这两个方法</span><br><span class="line">如果自定义对象作为Map的键，那么必须覆写 hashCode 和 equals</span><br></pre></td></tr></table></figure>
+<p><font color="orange">说明：</font> 因为 String 覆写了 hashCode 和 equals 方法，所以选择 String 作为 key</p>
+<p>2、<font color="red">【强制】</font> 判断所有集合内部的元素是否为空，使用 isEmpty() 方法，而不是 size() == 0 的方式</p>
+<p>在某些集合中，前者的时间复杂度为 O(1)，而且可读性更好</p>
+<p>3、<font color="red">【强制】</font> 在使用 java.util.stream.Collectors 类的 toMap() 方法转为 Map 集合时，一定要使用含有参数类型的 ，参数名为 mergeFunction 的方法，否则当出现相同 key 值时会抛出 IllegalStateException 异常</p>
+<p><font color="orange">说明：</font> 参数 mergeFunction 的作用是当 key 重复时，自定义对 value 的处理策略，(v1, v2) -&gt; v2) 指当key一致时，用新的 value 值替代旧值</p>
+<p><font color="green">正例：</font> </p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">List&lt;Pair&lt;String, Double&gt;&gt; pairArrayList = <span class="keyword">new</span> ArrayList&lt;&gt;(<span class="number">3</span>);</span><br><span class="line">pairArrayList.add(<span class="keyword">new</span> Pair&lt;&gt;(<span class="string">&quot;version&quot;</span>, <span class="number">12.10</span>));</span><br><span class="line">pairArrayList.add(<span class="keyword">new</span> Pair&lt;&gt;(<span class="string">&quot;version&quot;</span>, <span class="number">12.19</span>));</span><br><span class="line">pairArrayList.add(<span class="keyword">new</span> Pair&lt;&gt;(<span class="string">&quot;version&quot;</span>, <span class="number">6.28</span>));</span><br><span class="line"><span class="comment">// 生成的 map 集合中只有一个键值对:&#123;version=6.28&#125;</span></span><br><span class="line">Map&lt;String, Double&gt; map = pairArrayList.stream().collect(Collectors.toMap(Pair::getKey, Pair::getValue, (v1, v2) -&gt; v2));</span><br></pre></td></tr></table></figure>
+<p><font color="red">反例：</font> toMap 应该加一个参数 (v1, v2)-&gt;v2 作为 merge 依据</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">String[] departments = <span class="keyword">new</span> String[] &#123;<span class="string">&quot;iERP&quot;</span>, <span class="string">&quot;iERP&quot;</span>, <span class="string">&quot;EIBU&quot;</span>&#125;; </span><br><span class="line"><span class="comment">// 抛出 IllegalStateException 异常</span></span><br><span class="line">Map&lt;Integer, String&gt; map = Arrays.stream(departments)</span><br><span class="line">.collect(Collectors.toMap(String::hashCode, str -&gt; str));</span><br></pre></td></tr></table></figure>
+<p>4、<font color="red">【强制】</font> 当使用 java.util.stream.Collectors 类的 toMap() 方法转为 Map 集合时，一定要注意当 value 为 null 时会抛出 NPE 异常</p>
+<p><font color="red">反例：</font></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">List&lt;Pair&lt;String, Double&gt;&gt; pairArrayList = <span class="keyword">new</span> ArrayList&lt;&gt;(<span class="number">2</span>);</span><br><span class="line">pairArrayList.add(<span class="keyword">new</span> Pair&lt;&gt;(<span class="string">&quot;version1&quot;</span>, <span class="number">8.3</span>));</span><br><span class="line">pairArrayList.add(<span class="keyword">new</span> Pair&lt;&gt;(<span class="string">&quot;version2&quot;</span>, <span class="keyword">null</span>));</span><br><span class="line">Map&lt;String, Double&gt; map = pairArrayList.stream().collect(</span><br><span class="line"><span class="comment">// 抛出 NullPointerException 异常</span></span><br><span class="line">                Collectors.toMap(</span><br><span class="line">                        Pair::getKey,</span><br><span class="line">                        Pair::getValue,</span><br><span class="line">                        (v1, v2) -&gt; v2));</span><br></pre></td></tr></table></figure>
+<p><font color="orange">说明：</font> 在 java.util.HashMap 的  merge 方法里会进行如下的判断：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span>(value == <span class="keyword">null</span> || remappingFunction == <span class="keyword">null</span>)&#123;</span><br><span class="line">  <span class="keyword">throw</span> <span class="keyword">new</span> NullPointerException();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><font color="green">正例：</font> </p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">List&lt;Pair&lt;String, Double&gt;&gt; pairArrayList = <span class="keyword">new</span> ArrayList&lt;&gt;(<span class="number">2</span>);</span><br><span class="line">pairArrayList.add(<span class="keyword">new</span> Pair&lt;&gt;(<span class="string">&quot;version1&quot;</span>, <span class="number">8.3</span>));</span><br><span class="line">pairArrayList.add(<span class="keyword">new</span> Pair&lt;&gt;(<span class="string">&quot;version2&quot;</span>, <span class="keyword">null</span>));</span><br><span class="line">Map&lt;String, Double&gt; map = pairArrayList.stream().collect(</span><br><span class="line">                Collectors.toMap(</span><br><span class="line">                        Pair::getKey,</span><br><span class="line">                  <span class="comment">// 先在值中判断是否为空，为空设定一个默认值</span></span><br><span class="line">                        value -&gt; Optional.ofNullable(value).map</span><br><span class="line">                                (Pair::getValue).orElse(<span class="number">0D</span>),</span><br><span class="line">                        (v1, v2) -&gt; v2));</span><br><span class="line">System.out.println(map);</span><br><span class="line"><span class="comment">// 输出结果</span></span><br><span class="line"><span class="comment">// &#123;version2=0.0, version1=8.3&#125;</span></span><br></pre></td></tr></table></figure>
+<p>5、<font color="red">【强制】</font> ArrayList 的 subList 结果不可强转成 ArrayList，否则会抛出 ClassCastException 异常：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">java.util.RandomAccessSubList cannot be cast to java.util.ArrayList</span><br></pre></td></tr></table></figure>
+<p><font color="orange">说明：</font> subList() 返回的是 ArrayList 的内部类 SubList，并不是 ArrayList 本身，而是 ArrayList 的一个视图，对于SubList 的所有操作最终会反映到原列表上</p>
+<p>6、<font color="red">【强制】</font>使用 Map 的方法 keySet() / values() / entrySet() 返回集合对象时，不可以对其添加元素操作，否则会抛出 UnsupportedOperationException 异常</p>
+<p>7、<font color="red">【强制】</font> Collections 类返回的对象，如：emptyList() / singletonList() 等就是 immutable list，不可对其进行添加或者删除元素操作</p>
+<p><font color="red">反例：</font> 如果查询无结果，返回 Collections.emptyList() 空集对象，调用方一旦进行了添加元素的操作，就会触发 UnsupportedOperationException 异常</p>
+<p>8、<font color="red">【强制】</font> 在 subList 场景中，高度注意对父集合元素的增加和删除，均会导致子列表的遍历、增加、删除产生 ConcurrentModificationException 异常</p>
+<p>9、<font color="red">【强制】</font> 使用集合转换数组的方法，必须使用集合的 toArray(T[] array)，传入的是类型完全一致，长度为0 的空数组</p>
+<p><font color="red">反例：</font> 直接使用 toArray 无参方法，返回值只能是 Object[] 类，若强制转其他类型数组将会出现 ClassCastException 错误</p>
+<p><font color="green">正例：</font> </p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">List&lt;String&gt; list = <span class="keyword">new</span> ArrayList&lt;&gt;(<span class="number">2</span>);</span><br><span class="line">list.add(<span class="string">&quot;guan&quot;</span>);</span><br><span class="line">list.add(<span class="string">&quot;bao&quot;</span>);</span><br><span class="line">String[] array = list.toArray(<span class="keyword">new</span> String[<span class="number">0</span>]);</span><br></pre></td></tr></table></figure>
+<p><font color="orange">说明：</font> 在使用 toArray 带参方法，数组空间大小的length</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">等于0：动态创建与 size 相同的数组，性能最好</span><br><span class="line">大于 0 但小于 size：重新创建大小等于 size 的数组，增加 GC 的负担</span><br><span class="line">等于 size：在高并发的情况下，数组创建完成之前，size 正在变大的情况下，也会演变成情况 2</span><br><span class="line">大于 size：空间浪费，且在 size 处插入 null 值，存在 NPE 隐患</span><br></pre></td></tr></table></figure>
+<p>10、<font color="red">【强制】</font> 在使用 Collection 接口任何实现类的 addAll() 方法时，都要对输入的集合参数进行 NPE 判断</p>
+<p><font color="orange">说明：</font> 在 ArrayList#addAll 方法的第一行代码即 Object[] a = c.toArray(); 其中 c 为输入集合参数，如果为 null 会抛出 NPE 异常</p>
+<p>11、<font color="red">【强制】</font> 使用工具类 Arrays.asList() 把数组转换成集合时，不能使用其修改集合相关的方法，他的 add/remove/clear 方法会抛出 UnsupportedOperationException 异常</p>
+<p><font color="orange">说明：</font> asList 的返回对象是一个 Arrays 内部类，并没有实现集合的修改方法。 Arrays.asList 体现的是适配器模式，只是转换接口，后台的数据仍是数组</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">String[] str = <span class="keyword">new</span> String[]&#123;<span class="string">&quot;chen&quot;</span>, <span class="string">&quot;yang&quot;</span>, <span class="string">&quot;hao&quot;</span>&#125;;</span><br><span class="line">List list = Arrays.asList(str);</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>list.add(“test”); 运行时会报 java.lang.UnsupportedOperationException 异常</p>
+</li>
+<li><p>如果在 asList 后通过 str[0]=”test”赋值，list 的数据也会变化</p>
+</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">String[] str = <span class="keyword">new</span> String[]&#123;<span class="string">&quot;chen&quot;</span>, <span class="string">&quot;yang&quot;</span>, <span class="string">&quot;hao&quot;</span>&#125;;</span><br><span class="line">List list = Arrays.asList(str);</span><br><span class="line">System.out.println(list);</span><br><span class="line">str[<span class="number">0</span>] = <span class="string">&quot;test&quot;</span>;</span><br><span class="line">System.out.println(list);</span><br><span class="line"><span class="comment">// 输出结果</span></span><br><span class="line"><span class="comment">// [chen, yang, hao]</span></span><br><span class="line"><span class="comment">// [test, yang, hao]</span></span><br></pre></td></tr></table></figure>
+<p>12、<font color="red">【强制】</font> 泛型通配符 &lt;? extends T&gt; 来接收返回的数据，此写法的泛型集合不能使用 add 方法；而 &lt;? super T&gt; 不能使用 get 方法，两者在接口调用赋值的场景中容易出错</p>
+<p><font color="orange">说明：</font> 扩展说一下 PECS（Producer Extends Cousumer Super）原则</p>
+<blockquote>
+<p>第一：频繁往外读取内容的，适合用 &lt;? extends T&gt;</p>
+<p>第二：经常往里面插入内容，适合用&lt;? super T&gt;</p>
+</blockquote>
+<p>13、<font color="red">【强制】</font> 在无泛型限制定义的集合赋值给泛型限制的集合时，在使用集合元素时，需要进行 instanceof 判断，避免抛出 ClassCastException 异常</p>
+<p><font color="orange">说明：</font> 泛型是在 JDK5 后出现，考虑到向前兼容，编译器是允许非泛型集合与泛型集合互相赋值</p>
+<p><font color="red">反例：</font> </p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">List&lt;String&gt; generics = <span class="keyword">null</span>;</span><br><span class="line">List notGenerics = <span class="keyword">new</span> ArrayList(<span class="number">10</span>);</span><br><span class="line">notGenerics.add(<span class="keyword">new</span> Object());</span><br><span class="line">notGenerics.add(<span class="keyword">new</span> Integer(<span class="number">1</span>));</span><br><span class="line">generics = notGenerics;</span><br><span class="line">String str = generics.get(<span class="number">0</span>);</span><br></pre></td></tr></table></figure>
+<p>14、<font color="red">【强制】</font> 不要在 forEach 循环里进行元素的 remove 、add 操作，remove 元素请使用 Iterator 方式，如果并发操作，需要对 Iterator 对象加锁</p>
+<p><font color="green">正例：</font> </p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">List&lt;String&gt; list = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">list.add(<span class="string">&quot;1&quot;</span>);</span><br><span class="line">list.add(<span class="string">&quot;2&quot;</span>);</span><br><span class="line">Iterator&lt;String&gt; it = list.iterator();</span><br><span class="line"><span class="keyword">while</span>(iterator.hasNext())&#123;</span><br><span class="line">  String item = it.next();</span><br><span class="line">  <span class="keyword">if</span>(符合删除元素条件)&#123;</span><br><span class="line">    iterator.remove();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><font color="red">反例：</font> </p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">for</span>(String item : list)&#123;</span><br><span class="line">  <span class="keyword">if</span>(<span class="string">&quot;2&quot;</span>.equals(item))&#123;</span><br><span class="line">    list.remove(item)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 会报 java.util.ConcurrentModificationException 异常</span></span><br><span class="line"><span class="comment">// modCount用于记录变更次数,当add或者remove时,都会自增1, expectedModCount 初始化为 modCount</span></span><br><span class="line"><span class="function"><span class="keyword">final</span> <span class="keyword">void</span> <span class="title">checkForComodification</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (modCount != expectedModCount)</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> ConcurrentModificationException();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>15、<font color="red">【强制】</font> 在 JDK 7 版本及以上， Comparator 实现类要满足如下三个条件，不然 Arrays.sort，Collections.sort 会抛出 IllegalArgumentException 异常</p>
+<blockquote>
+<p>1、x，y 的比较结果 和 y，x 的比较结果相反</p>
+<p>2、x &gt; y, y &gt; z,则 x &gt; z</p>
+<p>3、x = y，则 x，z比较结果和 y，z 比较结果相同</p>
+</blockquote>
+<p><font color="red">反例：</font> 没有处理值相等的情况</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">compareTo</span><span class="params">(Person o)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">this</span>.age &gt; o.age? <span class="number">1</span> : -<span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><font color="green">正例：</font></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 升序</span></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">compareTo</span><span class="params">(Person o)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">this</span>.age - o.age;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 降序</span></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">compareTo</span><span class="params">(Person o)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> o.age - <span class="keyword">this</span>.age;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>16、<font color="orange">【推荐】</font> 集合泛型定义事，在 JDK 7 及以上，使用 diamond 语法或者全省略</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// diamond 方式，即&lt;&gt;</span></span><br><span class="line">HashMap&lt;String, String&gt; userCache = <span class="keyword">new</span> HashMap&lt;&gt;(<span class="number">16</span>);</span><br><span class="line"><span class="comment">// 全省略方式</span></span><br><span class="line">ArrayList&lt;User&gt; users = <span class="keyword">new</span> ArrayList(<span class="number">10</span>);</span><br></pre></td></tr></table></figure>
+<p>17、<font color="orange">【推荐】</font> 集合初始化时，指定集合初始值大小</p>
+<p><font color="orange">说明：</font> HashMap 使用 HashMap(int initialCapacity) 初始化，如果暂时无法确定集合大小，那么指定默认值 （16）即可</p>
+<p><font color="green">正例：</font> initialCapacity = (需要存储的元素个数 / 负载因子) + 1。负载因子 （loader factor）默认为 0.75，  如果暂时无法确定初始值，设置为16</p>
+<p><font color="red">反例：</font> HashMap 需要放置 1024 个元素，由于没有设置容量初始大小，随着元素增加而被迫不断扩容，resize() 方法总共会调用 8 次，反复重建哈希表和数据迁移。当放置的集合元素个数达到千万级的时候会影响程序性能。</p>
+<p>18、<font color="orange">【推荐】</font> 使用 entrySet 遍历 Map 类集合 KV，而不是 keySet 方式进行遍历</p>
+<p><font color="orange">说明：</font> keySet 其实是遍历了 2 次，一次是为了转为 Iterator 对象，另一次是从 hashMap 中取出 key 对应的 value。 而 entrySet 只是遍历了一次就把 key 和 value 都放到 entry 中，效率更高，如果是 JDK8 ,使用 Map.forEach 方法</p>
+<p><font color="green">正例：</font>values() 返回的是 V 值集合，是一个 list 集合对象；keySet() 返回的是 K 值集合，是一个 Set 集合对象，entrySet() 返回的是 K-V 值组合集合</p>
+<p>19 、<font color="orange">【推荐】</font>高度注意 Map 类集合 K/V 能不能储存 null 值的情况，</p>
+<table>
+<thead>
+<tr>
+<th>集合类</th>
+<th>key</th>
+<th>value</th>
+<th>super</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Hashtable</td>
+<td>不允许为 null</td>
+<td>不允许为 null</td>
+<td>Dictionary</td>
+<td>线程安全</td>
+</tr>
+<tr>
+<td>ConcurrentHashMap</td>
+<td>不允许为 null</td>
+<td>不允许为 null</td>
+<td>AbstractMap</td>
+<td>锁分段技术(JDK8:CAS)</td>
+</tr>
+<tr>
+<td>TreeMap</td>
+<td>不允许为 null</td>
+<td>允许为 null</td>
+<td>AbstractMap</td>
+<td>线程不安全</td>
+</tr>
+<tr>
+<td>HashMap</td>
+<td>允许为 null</td>
+<td>允许为 null</td>
+<td>AbstractMap</td>
+<td>线程不安全</td>
+</tr>
+</tbody></table>
+<p><font color="red">反例：</font> 由于 HashMap 的干扰，但是 ConcurrentHashMap 是不允许存储 null 值的，会抛出 NPE 异常</p>
+<p>20、<font color="green">【参考】</font>合理利用好的集合有序性（sort）和稳定性（order），避免集合的无序性（unsort）和不稳定行（unorder）带来的负面影响</p>
+<p><font color="orange">说明：</font> 有序性是指遍历的结果是按某种比较规则依次排列的，稳定性值集合每次遍历的元素次序是一定的</p>
+<table>
+<thead>
+<tr>
+<th>集合</th>
+<th>有序性</th>
+<th>稳定性</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ArrayList</td>
+<td>unsort</td>
+<td>order</td>
+</tr>
+<tr>
+<td>HashMap</td>
+<td>unsort</td>
+<td>unorder</td>
+</tr>
+<tr>
+<td>TreeSet</td>
+<td>sort</td>
+<td>order</td>
+</tr>
+</tbody></table>
+<p>21、<font color="green">【参考】</font> 利用 Set 元素唯一的特性，可以快速对一个集合进行去重操作，避免使用 List 的 contains() 进行遍历去重或者判断包含操作；</p>
+<h1 id="七、并发处理"><a href="#七、并发处理" class="headerlink" title="七、并发处理"></a>七、并发处理</h1>]]></content>
+      <categories>
+        <category>Java</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+        <tag>代码规范</tag>
+        <tag>阿里Java手册</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>RabbitMQ学习（一）：基础语句</title>
     <url>/2021/02/04/RabbitMQ%E5%AD%A6%E4%B9%A0%EF%BC%88%E4%B8%80%EF%BC%89%EF%BC%9A%E5%9F%BA%E7%A1%80%E8%AF%AD%E5%8F%A5/</url>
     <content><![CDATA[<h1 id="一、-服务器设置"><a href="#一、-服务器设置" class="headerlink" title="一、 服务器设置"></a>一、 服务器设置</h1><h2 id="1、服务器启动与关闭"><a href="#1、服务器启动与关闭" class="headerlink" title="1、服务器启动与关闭"></a>1、服务器启动与关闭</h2><p>启动服务器：</p>
@@ -158,6 +424,115 @@
       </tags>
   </entry>
   <entry>
+    <title>Java开发手册学习：编程规约（二）</title>
+    <url>/2021/06/08/Java%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C%E5%AD%A6%E4%B9%A0%EF%BC%9A%E7%BC%96%E7%A8%8B%E8%A7%84%E7%BA%A6%EF%BC%88%E4%BA%8C%EF%BC%89/</url>
+    <content><![CDATA[<h1 id="四、OPP规约"><a href="#四、OPP规约" class="headerlink" title="四、OPP规约"></a>四、OPP规约</h1><p>1、<font color="red">【强制】</font> 避免通过一个类的对象来引用访问此类的静态变量或静态方法，无谓增加编译器解析成本，直接使用 <strong>类名</strong> 来请求就行（不要new 静态对象访问）</p>
+<p>2、<font color="red">【强制】</font> 所有的覆写方法，必须加 @Override 注解</p>
+<p>3、<font color="red">【强制】</font> 相同参数类型，相同业务含义，才可以使用 Java 的可变参数，避免使用 Object。可变参数必须放置在参数列表的最后</p>
+<p><font color="green">正例：</font> </p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> List&lt;User&gt; listUsers（String type, Long... ids）&#123;……&#125;</span><br></pre></td></tr></table></figure>
+<p>4、<font color="red">【强制】</font> 外部正在调用或者二方库依赖的接口，不允许修改方法签名，避免对接口调用方产生影响。接口过时必须加 @Deprecated 注解，并清晰说明采用的新接口或者新服务是什么</p>
+<p>5、<font color="red">【强制】</font> 不能使用过时的类或者方法</p>
+<p>6、<font color="red">【强制】</font> Object 的 equals 方法容易抛空指针异常，应该使用常量或者确定有值的对象来调用 equals </p>
+<p><font color="green">正例：</font> “test”.equals(object);</p>
+<p><font color="red">反例：</font> object.equals(“test”);</p>
+<p><font color="orange">说明：</font> 推荐使用工具类 java.util.Objects#equals(Object a, Object b)</p>
+<p>7、<font color="red">【强制】</font>  所有整型包装类对象之间的值比较，全部使用 equals 方法比较</p>
+<p><font color="orange">说明：</font> 对于 Integer var = ? 在 -128 到 127 之间的赋值，Integer 对象在 IntegerCache.cache 产生，会复用</p>
+<p>已有对象，这个区间内的 Integer 值可以直接使用 == 进行判断，但是这个区间之外的所有数据，都会在堆中产生，并不会复用已有对象，所以就算值相等，直接 == 判断并不是同一个对象；</p>
+<p>8、<font color="red">【强制】</font> 任何货币金额，均以最小货币单位且整型类型进行存储</p>
+<p>9、<font color="red">【强制】</font> 浮点数之间的等值判断，基本数据类型不能用 == 来比较，包装数据类型不能用 equals 来判断</p>
+<p><font color="orange">说明：</font> 浮点数采用”尾数+阶码“的编码方式，类似于科学记数法的”有效数字+指数“的表示方式，二进制无法精确表示大部分的十进制小数；</p>
+<p><font color="green">正例：</font></p>
+<p>1、指定一个误差范围，两个浮点数的差值在此范围之内，则认为是相等的 </p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">float</span> a = <span class="number">1.0F</span> - <span class="number">0.9F</span>;</span><br><span class="line"><span class="keyword">float</span> b = <span class="number">0.9F</span> - <span class="number">0.8F</span>;</span><br><span class="line"><span class="keyword">float</span> diff = <span class="number">1e-6F</span>;</span><br><span class="line"><span class="keyword">if</span>(Math.abs(a - b) &lt; diff)&#123;&#125;</span><br></pre></td></tr></table></figure>
+<p>2、使用 BigDecimal 来定义值，再进行浮点数的运算操作</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">BigDecimal a = <span class="keyword">new</span> BigDecimal(<span class="string">&quot;1.0&quot;</span>);</span><br><span class="line">BigDecimal b = <span class="keyword">new</span> BigDecimal(<span class="string">&quot;0.9&quot;</span>);</span><br><span class="line">BigDecimal c = <span class="keyword">new</span> BigDecimal(<span class="string">&quot;0.8&quot;</span>);</span><br><span class="line">BigDecimal x = a.subtract(b);</span><br><span class="line">BigDecimal y = b.subtract(c);</span><br><span class="line"><span class="keyword">if</span>(x.compareTo(y) == <span class="number">0</span>)&#123;&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p><font color="red">反例：</font> </p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 基本数据类型不能用 == 来比较</span></span><br><span class="line"><span class="keyword">float</span> a = <span class="number">1.0F</span> - <span class="number">0.9F</span>;</span><br><span class="line"><span class="keyword">float</span> b = <span class="number">0.9F</span> - <span class="number">0.8F</span>;</span><br><span class="line">System.out.println(a+<span class="string">&quot;|&quot;</span>+b+<span class="string">&quot;|&quot;</span>+(a-b));</span><br><span class="line"><span class="comment">// 输出结果</span></span><br><span class="line"><span class="comment">// 0.100000024|0.099999964|5.9604645E-8</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 包装数据类型不能用 equals 来判断</span></span><br><span class="line">Float x = Float.valueOf(a);</span><br><span class="line">Float y = Float.valueOf(b);</span><br><span class="line"><span class="comment">// x.equals(y) 输出为false</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p><img src="https://gitee.com/yannickCao/blogimg/raw/master/img/20210609101731.png"></p>
+<blockquote>
+<p>整数部分 + 小数部分，因此最终得到的结果二进制结果为<code>110.01011100...</code></p>
+<p>按照 <strong>尾数 + 阶码</strong> 的计算机技术方式，可以表示为： *<em>1.1001011100…</em>2<sup>2</sup>**</p>
+<p><code>System.out.println( 1f == 0.999999999999f );</code>换算一下你就会发现，其实在<code>float</code>类型下，不管是<code>1f</code>还是<code>0.999999999999f</code>，它们的二进制换算结果都是：</p>
+<blockquote>
+<p>0011111 10000000 00000000 00000000</p>
+</blockquote>
+<p>所以结果相等</p>
+</blockquote>
+<p>10、<font color="red">【强制】</font> BigDecimal 的等值比较应该使用 compareTo() 方法，而不是 equals() 方法；</p>
+<p><font color="orange">说明：</font> equals 方法会比较值和精度(1.0 和 1.00 返回结果会是 false)，而 compareTo 则会忽略精度</p>
+<p>11、<font color="red">【强制】</font> 定义数据对象 DO 时，属性类型要与数据库字段类型相匹配（bigint必须是类属性的Long，如果实际设置为 Integer，表示范围可能会溢出成为负数）</p>
+<p>12、<font color="red">【强制】</font> 禁止使用构造方法 BigDecimal(double) 的方式把 double 值转化为 BigDecimal 对象</p>
+<p><font color="orange">说明：</font> BigDecimal(double) 存在精度丢失风险，在精确计算或值比较的场景中可能会导致业务逻辑异常</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 实际的存储值为:0.10000000149</span></span><br><span class="line">BigDecimal g = <span class="keyword">new</span> BigDecimal(<span class="number">0.1F</span>);</span><br></pre></td></tr></table></figure>
+<p><font color="green">正例：</font> 优先推荐入参为 String 的构造方法，或使用 BigDecimal 的 valueOf 方法，此方法内部其实执行了 Double  的 toString，而 Double 的 toString 按照 double 的实际能表达的精度对尾数进行了截断</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">BigDecimal r1 = <span class="keyword">new</span> BigDecimal(<span class="string">&quot;0.1&quot;</span>);</span><br><span class="line">BigDecimal r2 = BigDecimal.valueOf(<span class="number">0.1D</span>);</span><br></pre></td></tr></table></figure>
+<p>13、关于基本数据类型与包装数据类型的使用标准</p>
+<p>1）<font color="red">【强制】</font> 所有的 POJO 类属性必须使用包装数据类型</p>
+<p>2）<font color="red">【强制】</font> RPC 方法的返回值和参数必须使用包装数据类型</p>
+<p>3）<font color="orange">【推荐】</font> 所有的局部变量使用基本数据类型</p>
+<p><font color="green">正例：</font> 数据库的查询结果可能是 null，因为自动拆箱，用基本数据类型接收有 NPE 的风险</p>
+<p><font color="red">反例：</font> 如果上涨下跌用 ±x% 表示，x为基本数据类型，调用的 RPC 服务，调用不成功时，返回的是默认值，页面显示 0%， 这个是不合理的，应该显示 -。所以包装数据类型的 null 值，能够表示额外的信息，如：远程调用失败，异常退出；</p>
+<p>14、<font color="red">【强制】</font> 定义 DO 、DTO、VO 等 POJO 类时，不要设定任何属性的默认值</p>
+<p><font color="red">反例：</font> POJO 的 createTime 默认值设置为了 new Date()，在数据提取时并没有设置具体值，在更新其他字段的时候又附带更新了此字段，导致创建时间不断更新为最新事件</p>
+<p>15、<font color="red">【强制】</font> 序列化类新增属性时，不要修改 serialVersionUID 字段，避免反序列失败；如果完全不兼容升级，避免反序列化混乱，那么请修改 serialVersionUID 值。</p>
+<p><font color="orange">说明：</font> 注意 serialVersionUID 不一致会抛出序列化运行时异常</p>
+<p>16、<font color="red">【强制】</font> 构造方法里面禁止加入任何业务逻辑，如果有初始化的逻辑，请放在 init 方法中</p>
+<p>17、<font color="red">【强制】</font> POJO 类必须写 toString 方法，使用 IDE 中的工具：source -&gt; genearte toString 时，如果继承另一个 POJO 类，注意在前面加入 super.toString</p>
+<p><font color="orange">说明：</font> 在方法执行抛出异常时，可以直接调用 POJO 的 toString 打印属性值</p>
+<p>18、<font color="red">【强制】</font> 禁止在 POJO 类中，同时存在对应属性 xxx 的 isXxx() 和 getXxx() 方法；</p>
+<p>19、<font color="orange">【推荐】</font> 使用索引访问用 String 的 split 方法得到的数组时，需做最后一个分隔符后有无内容的检查，否则会有抛 IndexOufOfBoundsException 的风险</p>
+<p>20、<font color="orange">【推荐】</font> 当一个类有多个构造方法，或者多个同名方法，这些方法应该按顺序放置在一起</p>
+<p>21、<font color="orange">【推荐】</font> 类内方法定义的顺序依次是：共有方法或者保护方法 》 私有方法 》getter、setter方法</p>
+<p>22、<font color="orange">【推荐】</font> setter 方法中，参数名称与类成员变量名称一致，this.成员名 = 参数名 在getter/ setter 方法中，不要增加业务逻辑，增强排查问题的难度</p>
+<p>23、<font color="orange">【推荐】</font> 循环体内，字符串的连接方式，使用 StringBuilder 的 append 方法进行扩展</p>
+<p><font color="red">反例：</font></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">String str = <span class="string">&quot;start&quot;</span>;</span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++)&#123;</span><br><span class="line">  str = str + <span class="string">&quot;hello&quot;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><font color="orange">说明：</font> 反例中，反编译的字节码文件显示每次循环都会 new 出一个 StringBuilder 对象，然后进行 append 操作，最后通过 toString 方法返回 String 对象，造成内存资源浪费</p>
+<p>24、<font color="orange">【推荐】</font> final 可以声明类，成员变量、方法以及本地变量，下列情况使用 final 关键字：</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">不允许被继承的类，如：String 类</span><br><span class="line">不允许修改引用的域对象，如：POJO 类的域变量</span><br><span class="line">不允许被覆写的方法，如：POJO 的 setter 方法</span><br><span class="line">不允许运行过程中重新赋值的局部变量</span><br><span class="line">避免上下文重复使用一个变量，使用 final 关键字可以强制重新定义一个变量，方便更好地进行重构</span><br></pre></td></tr></table></figure>
+<p>25、<font color="orange">【推荐】</font> 慎用 Object 的 clone 方法来拷贝对象</p>
+<p><font color="orange">说明：</font> 对象 clone 方法默认的是浅拷贝，若想实现深拷贝，需要覆写 clone 方法来实现域对象的深度遍历式拷贝</p>
+<p>26、<font color="orange">【推荐】</font> 类成员与方法访问控制从严：</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">如果不允许外部直接通过 new 来创建对象，那么构造方法必须是 private</span><br><span class="line">工具类不允许有 public 或 default 构造方法</span><br><span class="line">类非 static 成员变量并且与子类共享，必须是 protected</span><br><span class="line">类非 static 成员变量并且仅在本类使用，必须是private</span><br><span class="line">类 static 成员变量如果仅在本类使用，必须是 private</span><br><span class="line">若是 static 成员变量，考虑是否为 final</span><br><span class="line">类成员方法只供给内部调用，必须是 private</span><br><span class="line">类成员方法只对继承类公开，那么限制为 protected</span><br></pre></td></tr></table></figure>
+
+
+<p><font color="orange">说明：</font> 严格控制访问范围，利于模块解耦</p>
+<h1 id="五、日期时间"><a href="#五、日期时间" class="headerlink" title="五、日期时间"></a>五、日期时间</h1><p>1、<font color="red">【强制】</font> 日期格式化时，传入 pattern 中表示年份统一使用小写的 y</p>
+<p><font color="orange">说明：</font> 日期格式化时，yyyy 表示当天在所在年，而大写的 YYYY 表示当天所在的周属于的年份，一周从这周日开始，周六结束，只要本周跨年， YYYY 返回的是下一年</p>
+<p><font color="green">正例：</font></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">new</span> SimpleDateFormat(<span class="string">&quot;yyyy-MM-dd HH:mm:ss&quot;</span>)</span><br></pre></td></tr></table></figure>
+<p>2、<font color="red">【强制】</font> 在日期格式中 大写 M 表示月份，小写 m 表示分钟，大写 H 表示24小时制，小写 h 表示12 小时制</p>
+<p>3、<font color="red">【强制】</font> 获取当前毫秒数：System.currentTimeMillis(); 而不是 new Date().getTime()</p>
+<p><font color="orange">说明：</font> 如果想要获得更加精确的纳秒级时间值，使用 System.nanoTime 的方式，在 JDK8 中，针对统计时间的场景，推荐使用 Instant类</p>
+<p>4、<font color="red">【强制】</font> 不允许在程序任何地方中使用：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">java.sql.Date</span><br><span class="line">java.sql.Time</span><br><span class="line">java.sql.Timestamp</span><br></pre></td></tr></table></figure>
+<p><font color="orange">说明：</font> 第一个不记录时间，getHours() 会抛出异常</p>
+<p>第二个不记录日期，getYear() 会抛出异常</p>
+<p>第三个在构造方法 super((time/1000)*1000)，在属性 Timestamp 属性的 fastTime 和 nanos 分别存储秒和纳秒信息</p>
+<p><font color="red">反例：</font> java.util.Date.after(Date) 进行时间比较时，当入参是 java.sql.Timestamp 时，会触发 JDK BUG（JDK9 一修复），可能导致比较时的意外结果</p>
+<p>5、<font color="red">【强制】</font> 不要再程序中写死一年为365天，避免在公历闰年时出现日期转换错误或者逻辑错误</p>
+<p><font color="green">正例：</font> </p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 获取今年的天数</span></span><br><span class="line"><span class="keyword">int</span> daysOfThisYear = LocalDate.now().lengthOfYear();</span><br><span class="line"><span class="comment">// 获取指定某年的天数</span></span><br><span class="line"><span class="keyword">int</span> daysOfThisYear = LocalDate.of(<span class="number">2020</span>,<span class="number">1</span>,<span class="number">1</span>).lengthOfYear();</span><br></pre></td></tr></table></figure>
+<p><font color="red">反例：</font> </p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 第一种情况，在闰年365天，出现数组越界异常</span></span><br><span class="line"><span class="keyword">int</span> dayArray = <span class="keyword">new</span> <span class="keyword">int</span>[<span class="number">365</span>];</span><br><span class="line"></span><br><span class="line"><span class="comment">// 第二种情况，一年有效期的会员，今年1月26日注册，硬编码365返回的确实1月25日</span></span><br><span class="line">Calendar calendar = Calendar.getInstance();</span><br><span class="line">calender.set(<span class="number">2020</span>,<span class="number">1</span>,<span class="number">26</span>);</span><br><span class="line">calender.add(Calendar.DATE, <span class="number">365</span>);</span><br></pre></td></tr></table></figure>
+<p>6、<font color="orange">【推荐】</font> 避免公历闰年2月的问题，一年后的同一天不是2月29日，而是3月1日</p>
+<p>7、<font color="orange">【推荐】</font> 使用枚举值来指代月份，如果使用数字，注意 Date，Calendar 等日期相关类的月份 month 取值在0-11之间</p>
+<p><font color="orange">说明：</font> 参考 JDK 原生注释，Month value is 0-based. e.g., 0 for January.<br><font color="green">正例：</font> Calendar.JANUARY，Calendar.FEBRUARY，Calendar.MARCH 等来指代相应月份来进行传参或 比较。</p>
+]]></content>
+      <categories>
+        <category>Java</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+        <tag>代码规范</tag>
+        <tag>阿里Java手册</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>SpringMvc静态资源路径的总结</title>
     <url>/2021/05/28/SpringMvc%E9%9D%99%E6%80%81%E8%B5%84%E6%BA%90%E8%B7%AF%E5%BE%84%E7%9A%84%E6%80%BB%E7%BB%93/</url>
     <content><![CDATA[]]></content>
@@ -166,18 +541,6 @@
       </categories>
       <tags>
         <tag>SpringMvc</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>hexo语法大全</title>
-    <url>/2021/01/29/hexo%E8%AF%AD%E6%B3%95%E5%A4%A7%E5%85%A8/</url>
-    <content><![CDATA[]]></content>
-      <categories>
-        <category>工具</category>
-      </categories>
-      <tags>
-        <tag>hexo</tag>
-        <tag>语法大全</tag>
       </tags>
   </entry>
   <entry>
@@ -297,8 +660,325 @@
         <category>markdown</category>
       </categories>
       <tags>
-        <tag>语法大全</tag>
         <tag>markdown</tag>
+        <tag>语法大全</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>hexo语法大全</title>
+    <url>/2021/01/29/hexo%E8%AF%AD%E6%B3%95%E5%A4%A7%E5%85%A8/</url>
+    <content><![CDATA[]]></content>
+      <categories>
+        <category>工具</category>
+      </categories>
+      <tags>
+        <tag>语法大全</tag>
+        <tag>hexo</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>redis 学习：初步了解redis</title>
+    <url>/2021/02/05/redis%E5%AD%A6%E4%B9%A0/</url>
+    <content><![CDATA[<h1 id="redis-简介"><a href="#redis-简介" class="headerlink" title="redis 简介"></a>redis 简介</h1><p>redis 是一种非关系型数据库（NoSQL），key-value 数据库，内存数据库，支持持久化，事务和备份，集群（支持16个库），等高可用功能，并且性能高（可达到每秒 100000+ 次查询），易扩展，丰富的数据类型，所有操作都是单线程，原子性</p>
+<a id="more"></a>]]></content>
+      <categories>
+        <category>数据库</category>
+        <category>redis</category>
+      </categories>
+      <tags>
+        <tag>redis</tag>
+        <tag>NoSQl</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>SpringMvc</title>
+    <url>/2021/05/31/SpringMvc/</url>
+    <content><![CDATA[]]></content>
+  </entry>
+  <entry>
+    <title>正则表达式语法学习</title>
+    <url>/2021/06/01/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F%EF%BC%88%E4%B8%80%EF%BC%89%EF%BC%9A%E5%9F%BA%E7%A1%80%E8%AF%AD%E6%B3%95/</url>
+    <content><![CDATA[<p>最近做项目的时候需要过滤富文本框的内容，正好复习一下之前归纳的正则表达式内容，不定时更新这个专题（笑~</p>
+<p>先推荐一个测试正则表达式的网站，挺好用的</p>
+<p><a href="https://regexper.com/#">https://regexper.com/#%0A</a></p>
+<a id="more"></a>
+
+<hr>
+<h1 id="一、元字符"><a href="#一、元字符" class="headerlink" title="一、元字符"></a>一、元字符</h1><table>
+<thead>
+<tr>
+<th>符号</th>
+<th>描述</th>
+<th>例子</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>\</td>
+<td>将下一个字符标记为一个特殊字符、或者一个原义字符，或一个向后引用，或一个八进制转义符</td>
+<td>‘’\n’表示换行符，序列’’\\‘ 匹配’\‘</td>
+</tr>
+<tr>
+<td>^</td>
+<td>匹配字符串的开始</td>
+<td>^abc，匹配以abc 为开头的字符</td>
+</tr>
+<tr>
+<td>$</td>
+<td>匹配字符串的结束</td>
+<td>^ab*$，匹配以a开头，0个或者多个b结尾的字符</td>
+</tr>
+<tr>
+<td>\w</td>
+<td>匹配字母，数字，下划线，汉字</td>
+<td></td>
+</tr>
+<tr>
+<td>\s</td>
+<td>匹配任意的空白符</td>
+<td></td>
+</tr>
+<tr>
+<td>\d</td>
+<td>匹配数字</td>
+<td></td>
+</tr>
+<tr>
+<td>\b</td>
+<td>匹配单词的开始或者结束，<font color=red><strong>单词边界指的是单词与符号之间的边界</strong></font>，单词可以是中文字符，英文字符，数字；符号可以是中文符号，英文符号，空格，制表符，换行</td>
+<td>\babc，匹配以abc 开头的字符串。单词边界如anb?1fg1，就是anb 和 fg1</td>
+</tr>
+<tr>
+<td>.</td>
+<td>匹配除换行符以外的所有字符</td>
+<td></td>
+</tr>
+<tr>
+<td>\W</td>
+<td>反义字符、匹配任意不是字母，数字，下划线，汉字的字符</td>
+<td></td>
+</tr>
+<tr>
+<td>\S</td>
+<td>反义字符，匹配任意不是空白符的字符</td>
+<td></td>
+</tr>
+<tr>
+<td>\D</td>
+<td>反义字符，匹配任意非数字的字符</td>
+<td></td>
+</tr>
+<tr>
+<td>\B</td>
+<td>匹配不是单词开头或结束的位置</td>
+<td></td>
+</tr>
+<tr>
+<td>[^x]</td>
+<td>匹配除了字符x意外的任意字符</td>
+<td>\Ba</td>
+</tr>
+<tr>
+<td>[^aeiou]</td>
+<td>匹配除了aeiou这几个字符意外的任意字符</td>
+<td></td>
+</tr>
+</tbody></table>
+<hr>
+<h1 id="二、重复限定词"><a href="#二、重复限定词" class="headerlink" title="二、重复限定词"></a>二、重复限定词</h1><table>
+<thead>
+<tr>
+<th>符号</th>
+<th>描述</th>
+<th>例子</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>*</td>
+<td>重复0次或者多次</td>
+<td></td>
+</tr>
+<tr>
+<td>+</td>
+<td>重复1次或者多次</td>
+<td></td>
+</tr>
+<tr>
+<td>?</td>
+<td>重复0次或者1次</td>
+<td></td>
+</tr>
+<tr>
+<td>{n}</td>
+<td>重复n次</td>
+<td>^\d{8}$，匹配8位数字</td>
+</tr>
+<tr>
+<td>{n,m}</td>
+<td>重复n到m次</td>
+<td>^\d{14,18}$，匹配14-18位数字</td>
+</tr>
+<tr>
+<td>{n,}</td>
+<td>重复n次或更多</td>
+<td></td>
+</tr>
+<tr>
+<td>()</td>
+<td>用小括号来做分组，如果匹配字符本来就包含括号，可以用’\‘ 转义</td>
+<td>^(ab)，匹配ab开头的字符串</td>
+</tr>
+</tbody></table>
+<hr>
+<h1 id="三、其他符号"><a href="#三、其他符号" class="headerlink" title="三、其他符号"></a>三、其他符号</h1><h2 id="1、条件或"><a href="#1、条件或" class="headerlink" title="1、条件或 |"></a>1、条件或 |</h2><p>匹配枚举手机号段，并列筛选</p>
+<p>^(130|131|132|155|156|185|186|145|176)\d{8}$</p>
+<h2 id="2、区间"><a href="#2、区间" class="headerlink" title="2、区间[]"></a>2、区间[]</h2><blockquote>
+<p>正则表达式提供一个元字符中括号[]来表示区间条件</p>
+<p>1、限定0到9：[0-9]</p>
+<p>2、限定A到Z：[A-Z]</p>
+<p>3、限定某些数字[165]</p>
+</blockquote>
+<p>利用区间，上述判断手机号段的正则表达式可以改成</p>
+<p>^(13[0-2]|15[56]|18[5-6]|145|176)\d{8}$</p>
+<hr>
+<h1 id="四、进阶知识"><a href="#四、进阶知识" class="headerlink" title="四、进阶知识"></a>四、进阶知识</h1><h2 id="1、零宽断言"><a href="#1、零宽断言" class="headerlink" title="1、零宽断言"></a>1、零宽断言</h2><h3 id="（1）正向先行断言"><a href="#（1）正向先行断言" class="headerlink" title="（1）正向先行断言"></a>（1）正向先行断言</h3><ul>
+<li>语法：?=pattern</li>
+<li>作用：匹配 pattern 表达式的前面内容，不返回本身</li>
+</ul>
+<p>看一个例子：获取其中阅读数的内容</p>
+<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">span</span> <span class="attr">class</span>=<span class="string">&quot;read-count&quot;</span>&gt;</span>阅读数：641<span class="tag">&lt;/<span class="name">span</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>此处如果要获取阅读数，</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">String reg = <span class="string">&quot;\\d+(?=&lt;/span&gt;)&quot;</span>;</span><br><span class="line">String test = <span class="string">&quot;&lt;span class=&quot;</span>read-count<span class="string">&quot;&gt;阅读数：641&lt;/span&gt;&quot;</span>;</span><br><span class="line"> Pattern pattern = Pattern.compile(reg);</span><br><span class="line"> Matcher mc = pattern.matcher(test);</span><br><span class="line"> <span class="keyword">while</span>(mc.find())&#123;</span><br><span class="line">   System.out.println(<span class="string">&quot;匹配结果：&quot;</span>+mc.group());</span><br><span class="line"> &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//匹配结果：641</span></span><br></pre></td></tr></table></figure>
+
+
+<h3 id="（2）正向后行断言"><a href="#（2）正向后行断言" class="headerlink" title="（2）正向后行断言"></a>（2）正向后行断言</h3><ul>
+<li>语法：(?&lt;=pattern)</li>
+<li>作用：匹配pattern表达式的后面内容，不返回本身</li>
+</ul>
+<p>继续上面阅读数的例子</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">String reg = <span class="string">&quot;(?&lt;=&lt;span class=\&quot;read-count\&quot;&gt;阅读数：)\\d+&quot;</span>;</span><br><span class="line">String test = <span class="string">&quot;&lt;span class=&quot;</span>read-count<span class="string">&quot;&gt;阅读数：641&lt;/span&gt;&quot;</span>;</span><br><span class="line"> Pattern pattern = Pattern.compile(reg);</span><br><span class="line"> Matcher mc = pattern.matcher(test);</span><br><span class="line"> <span class="keyword">while</span>(mc.find())&#123;</span><br><span class="line">   System.out.println(<span class="string">&quot;匹配结果：&quot;</span>+mc.group());</span><br><span class="line"> &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//匹配结果：641</span></span><br></pre></td></tr></table></figure>
+
+
+<h3 id="（3）负向先行断言"><a href="#（3）负向先行断言" class="headerlink" title="（3）负向先行断言"></a>（3）负向先行断言</h3><ul>
+<li>语法：(?!pattern)</li>
+<li>作用：负向值得是”非“的意思，匹配非 pattern 表达式的前面内容，不返回本身</li>
+</ul>
+<p>例子：我爱祖国，我是祖国的花朵</p>
+<p>如果要找到不是”的花朵“前面的祖国</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">String test = <span class="string">&quot;我爱祖国，我是祖国的花朵&quot;</span>;</span><br><span class="line">String reg = <span class="string">&quot;祖国(?!的花朵)&quot;</span>;</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="（4）负向后行断言"><a href="#（4）负向后行断言" class="headerlink" title="（4）负向后行断言"></a>（4）负向后行断言</h3><ul>
+<li>语法：(?&lt;!pattern)</li>
+<li>作用：匹配非 pattern 表达式的后面内容，不返回本身</li>
+</ul>
+<h2 id="2、捕获和非捕获"><a href="#2、捕获和非捕获" class="headerlink" title="2、捕获和非捕获"></a>2、捕获和非捕获</h2><h3 id="（1）-捕获组"><a href="#（1）-捕获组" class="headerlink" title="（1） 捕获组"></a>（1） 捕获组</h3><p>捕获的意思是匹配表达式，但捕获通常和分组联系在一起，也就是“捕获组”</p>
+<blockquote>
+<p>捕获组：匹配子表达式的内容，把匹配结果保存到内存中数字编号或者显示命名的组里，以深度优先进行编号，之后可以通过序号或者名称来使用这些匹配的结果</p>
+<p>语法：(exp)</p>
+</blockquote>
+<p>例子比如匹配手机号 13112345678，可以用分组号段+号码，(1\d{2})(\d{8})</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**分组*/</span></span><br><span class="line">String test = <span class="string">&quot;13112345678&quot;</span>;</span><br><span class="line">String reg=<span class="string">&quot;(1\\d&#123;2&#125;)(\\d&#123;8&#125;)&quot;</span>;</span><br><span class="line">Pattern pattern = Pattern.compile(reg);</span><br><span class="line">Matcher mc= pattern.matcher(test);</span><br><span class="line"><span class="keyword">if</span>(mc.find())&#123;</span><br><span class="line">  System.out.println(<span class="string">&quot;分组的个数有：&quot;</span>+mc.groupCount());</span><br><span class="line">  <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;=mc.groupCount();i++)&#123;</span><br><span class="line">    System.out.println(<span class="string">&quot;第&quot;</span>+i+<span class="string">&quot;个分组为：&quot;</span>+mc.group(i));</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>输出结果：</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">分组的个数有：2</span><br><span class="line">第0个分组为：13112345678</span><br><span class="line">第1个分组为：131</span><br><span class="line">第2个分组为：12345678</span><br></pre></td></tr></table></figure>
+<p>注意：分组0默认是匹配到的全字符串</p>
+<p>当然也可以用&lt;&gt;给分组命名</p>
+<blockquote>
+<p>语法：(?&lt;&gt; exp)</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**分组命名*/</span></span><br><span class="line">String test = <span class="string">&quot;13112345678&quot;</span>;</span><br><span class="line">String reg=<span class="string">&quot;(?&lt;haoduan&gt;1\\d&#123;2&#125;)(?&lt;haoma&gt;\\d&#123;8&#125;)&quot;</span>;</span><br><span class="line">Pattern pattern = Pattern.compile(reg);</span><br><span class="line">Matcher mc= pattern.matcher(test);</span><br><span class="line"><span class="keyword">if</span>(mc.find())&#123;</span><br><span class="line">  System.out.println(<span class="string">&quot;分组的个数有：&quot;</span>+mc.groupCount());</span><br><span class="line">  System.out.println(<span class="string">&quot;haoduan分组为：&quot;</span>+mc.group(<span class="string">&quot;haoduan&quot;</span>));</span><br><span class="line">  System.out.println(<span class="string">&quot;haoma分组为：&quot;</span>+mc.group(<span class="string">&quot;haoma&quot;</span>));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>输出结果：</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">分组的个数有：2</span><br><span class="line">haoduan分组为：131</span><br><span class="line">haoma分组为：12345678</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="（2）非捕获组"><a href="#（2）非捕获组" class="headerlink" title="（2）非捕获组"></a>（2）非捕获组</h3><blockquote>
+<p>解释：与捕获组刚好相反，用来标识那些不需要捕获的分组，匹配的时候会按照多个组来匹配，但是非捕获组不会出现在结果组里，可以根据需要去保存分组</p>
+<p>语法：(?:exp)</p>
+</blockquote>
+<p>例子：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**分组 非捕获组*/</span></span><br><span class="line">String test = <span class="string">&quot;13112345678&quot;</span>;</span><br><span class="line">String reg=<span class="string">&quot;(?:1\\d&#123;2&#125;)(\\d&#123;8&#125;)&quot;</span>;</span><br><span class="line">Pattern pattern = Pattern.compile(reg);</span><br><span class="line">Matcher mc= pattern.matcher(test);</span><br><span class="line"><span class="keyword">if</span>(mc.find())&#123;</span><br><span class="line">  System.out.println(<span class="string">&quot;分组的个数有：&quot;</span>+mc.groupCount());</span><br><span class="line">  <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;=mc.groupCount();i++)&#123;</span><br><span class="line">    System.out.println(<span class="string">&quot;第&quot;</span>+i+<span class="string">&quot;个分组为：&quot;</span>+mc.group(i));</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>输出结果：</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">分组的个数有：1</span><br><span class="line">第0个分组为：13112345678</span><br><span class="line">第1个分组为：12345678</span><br></pre></td></tr></table></figure>
+<p>匹配还是会按照多个分组匹配手机号，但是最后组里只有捕获组，非捕获组不获取</p>
+<h2 id="3、-反向引用"><a href="#3、-反向引用" class="headerlink" title="3、 反向引用"></a>3、 反向引用</h2><p>上面的例子说明了捕获组，捕获组可以把结果保存在内存中，那如果我们要在正则表达式中引用到前面的结果时，可以使用到反向引用，即在正则表达式内部进行引用</p>
+<p>根据捕获组的命名规则，反向引用可以分为</p>
+<blockquote>
+<p>1、数字编号组：\k&lt;number&gt; 或者 \number</p>
+<p>2、命名编号组：\k&lt;“name”&gt; 或者 &quot;name”</p>
+</blockquote>
+<p>此处也举一个例子说明，比如现在有一个需求，要在字符串”aabbbbgbddesddfiidddddddd”中匹配重复的字母</p>
+<p>先用一般的思维给出一个思路</p>
+<blockquote>
+<p>1、匹配一个字母</p>
+<p>2、匹配下一个字母，检查是否和上一个字母一样</p>
+<p>3、如果一样，则匹配成功，否则匹配下一个字符、</p>
+</blockquote>
+<p>顺着思路我们先来匹配一个字母：\w，但是匹配下一个字母的时候，需要用到上一个字母来进行匹配，那如何记住上一个字母呢？此时就需要用到捕获组；</p>
+<p>然后需要把他做成一个分组(\w)，然后就有了一个捕获组(\w)；</p>
+<p>然后根据捕获组的反向引用方式，用\1表示第一个捕获组（或者\k&lt;1&gt;），然后用这个捕获组作为条件，用代码测试下</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**反向引用*/</span></span><br><span class="line">String test = <span class="string">&quot;aabbbbgbddesddfiiddddddd&quot;</span>;</span><br><span class="line">Pattern pattern = Pattern.compile(<span class="string">&quot;(\\w)\\1&quot;</span>);</span><br><span class="line">Matcher mc= pattern.matcher(test);</span><br><span class="line"><span class="keyword">while</span>(mc.find())&#123;</span><br><span class="line">  System.out.println(mc.group());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>输出结果：</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">aa</span><br><span class="line">bb</span><br><span class="line">bb</span><br><span class="line">dd</span><br><span class="line">dd</span><br><span class="line">ii</span><br><span class="line">dd</span><br><span class="line">dd</span><br><span class="line">dd</span><br></pre></td></tr></table></figure>
+<p>从例子可以看到最后匹配的样子是 (\w)\1</p>
+<p>或者一次匹配所有重复的字符</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**反向引用*/</span></span><br><span class="line">String test = <span class="string">&quot;aabbbbgbddesddfiiddddddd&quot;</span>;</span><br><span class="line">Pattern pattern = Pattern.compile(<span class="string">&quot;(\\w)\\1+&quot;</span>);</span><br><span class="line">Matcher mc= pattern.matcher(test);</span><br><span class="line"><span class="keyword">while</span>(mc.find())&#123;</span><br><span class="line">  System.out.println(mc.group());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>输出结果：</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">aa</span><br><span class="line">bbbb</span><br><span class="line">dd</span><br><span class="line">dd</span><br><span class="line">ii</span><br><span class="line">ddddddd</span><br></pre></td></tr></table></figure>
+
+
+
+
+<h2 id="4、贪婪和非贪婪"><a href="#4、贪婪和非贪婪" class="headerlink" title="4、贪婪和非贪婪"></a>4、贪婪和非贪婪</h2><h3 id="（1）贪婪"><a href="#（1）贪婪" class="headerlink" title="（1）贪婪"></a>（1）贪婪</h3><p>在正则中默认使用贪婪匹配</p>
+<blockquote>
+<p>贪婪匹配：当正则表达式中包含能接受重复的限定符时，通常的行为是（在使整个表达式都能得到匹配的前提下）匹配尽量多的字符。</p>
+<p>流程：一次性读入整个字符进行匹配，每当不匹配就舍弃最右边的一个字符，依次匹配和舍弃（回溯法），知道匹配成功或者整个字符串舍弃完为止，因此它是一种最大化的数据返回，能多不能少。</p>
+</blockquote>
+<p>例子，比如在一个字符串中匹配尽量多的数字</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**贪婪*/</span></span><br><span class="line">String reg=<span class="string">&quot;(\\d&#123;1,2&#125;)(\\d&#123;3,4&#125;)&quot;</span>;</span><br><span class="line">String test=<span class="string">&quot;a61762828 176 2996 8732g11&quot;</span>;</span><br><span class="line">System.out.println(<span class="string">&quot;文本：&quot;</span>+test);</span><br><span class="line">System.out.println(<span class="string">&quot;贪婪模式：&quot;</span>+reg);</span><br><span class="line">Pattern p1 =Pattern.compile(reg);</span><br><span class="line">Matcher m1 = p1.matcher(test);</span><br><span class="line"><span class="keyword">int</span> i = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">while</span>(m1.find())&#123;</span><br><span class="line">  System.out.println(i+<span class="string">&quot;）匹配结果：&quot;</span>+m1.group(<span class="number">0</span>));</span><br><span class="line">  System.out.println(i+<span class="string">&quot;）匹配结果：&quot;</span>+m1.group(<span class="number">1</span>));</span><br><span class="line">  System.out.println(i+<span class="string">&quot;）匹配结果：&quot;</span>+m1.group(<span class="number">2</span>));</span><br><span class="line">  i++;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>输出结果：</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">文本：a61762828 176 2996 87321g1</span><br><span class="line">贪婪模式：(\d&#123;1,2&#125;)(\d&#123;3,4&#125;)</span><br><span class="line">0）全字符匹配结果：617628</span><br><span class="line">0）分组1匹配结果：61</span><br><span class="line">0）分组2匹配结果：7628</span><br><span class="line">1）全字符匹配结果：2996</span><br><span class="line">1）分组1匹配结果：2</span><br><span class="line">1）分组2匹配结果：996</span><br><span class="line">2）全字符匹配结果：87321</span><br><span class="line">2）分组1匹配结果：87</span><br><span class="line">2）分组2匹配结果：321</span><br></pre></td></tr></table></figure>
+<p>比如617628 这个结果，本来6176 就已经符合的匹配结果了6（1），176（3），因为贪婪最后会变成61（2），7628（4）</p>
+<h3 id="（2）懒惰（非贪婪）"><a href="#（2）懒惰（非贪婪）" class="headerlink" title="（2）懒惰（非贪婪）"></a>（2）懒惰（非贪婪）</h3><blockquote>
+<p>懒惰匹配：匹配正则表达式中尽量少包含的重复限定词（在整个表达式都能得到匹配的前提下）</p>
+<p>流程：从字符串左边开始往右匹配，每次视图读入字符匹配，匹配成功则返回，否则依次读入下一个字符匹配，直至成功或者字符匹配完</p>
+</blockquote>
+<p>语法：懒惰量词是在贪婪量词后面加入”?”</p>
+<table>
+<thead>
+<tr>
+<th>代码</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>*?</td>
+<td>重复任意次，但尽量少重复</td>
+</tr>
+<tr>
+<td>+?</td>
+<td>重复1次或更多次，但尽量少重复</td>
+</tr>
+<tr>
+<td>??</td>
+<td>重复0次或1次，但尽量少重复</td>
+</tr>
+<tr>
+<td>{n,m}?</td>
+<td>重复n到m次，但尽量少重复</td>
+</tr>
+<tr>
+<td>{n,}?</td>
+<td>重复n次或更多次，但尽量少重复</td>
+</tr>
+</tbody></table>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**懒惰*/</span></span><br><span class="line">String reg=<span class="string">&quot;(\\d&#123;1,2&#125;?)(\\d&#123;3,4&#125;?)&quot;</span>;</span><br><span class="line">String test=<span class="string">&quot;a61762828 176 2996 87321g1&quot;</span>;</span><br><span class="line">System.out.println(<span class="string">&quot;文本：&quot;</span>+test);</span><br><span class="line">System.out.println(<span class="string">&quot;懒惰模式：&quot;</span>+reg);</span><br><span class="line">Pattern p1 =Pattern.compile(reg);</span><br><span class="line">Matcher m1 = p1.matcher(test);</span><br><span class="line"><span class="keyword">int</span> i = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">while</span>(m1.find())&#123;</span><br><span class="line">  System.out.println(i+<span class="string">&quot;）全字符匹配结果：&quot;</span>+m1.group(<span class="number">0</span>));</span><br><span class="line">  System.out.println(i+<span class="string">&quot;）分组1匹配结果：&quot;</span>+m1.group(<span class="number">1</span>));</span><br><span class="line">  System.out.println(i+<span class="string">&quot;）分组2匹配结果：&quot;</span>+m1.group(<span class="number">2</span>));</span><br><span class="line">  i++;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>输出结果</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">文本：a61762828 176 2996 87321g1</span><br><span class="line">懒惰模式：(\d&#123;1,2&#125;?)(\d&#123;3,4&#125;?)</span><br><span class="line">0）全字符匹配结果：6176</span><br><span class="line">0）分组1匹配结果：6</span><br><span class="line">0）分组2匹配结果：176</span><br><span class="line">1）全字符匹配结果：2828</span><br><span class="line">1）分组1匹配结果：2</span><br><span class="line">1）分组2匹配结果：828</span><br><span class="line">2）全字符匹配结果：2996</span><br><span class="line">2）分组1匹配结果：2</span><br><span class="line">2）分组2匹配结果：996</span><br><span class="line">3）全字符匹配结果：8732</span><br><span class="line">3）分组1匹配结果：8</span><br><span class="line">3）分组2匹配结果：732</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>正则表达式</category>
+      </categories>
+      <tags>
+        <tag>正则表达式</tag>
       </tags>
   </entry>
   <entry>
@@ -328,22 +1008,8 @@
         <category>markdown</category>
       </categories>
       <tags>
-        <tag>语法大全</tag>
         <tag>markdown</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>redis 学习：初步了解redis</title>
-    <url>/2021/02/05/redis%E5%AD%A6%E4%B9%A0/</url>
-    <content><![CDATA[<h1 id="redis-简介"><a href="#redis-简介" class="headerlink" title="redis 简介"></a>redis 简介</h1><p>redis 是一种非关系型数据库（NoSQL），key-value 数据库，内存数据库，支持持久化，事务和备份，集群（支持16个库），等高可用功能，并且性能高（可达到每秒 100000+ 次查询），易扩展，丰富的数据类型，所有操作都是单线程，原子性</p>
-<a id="more"></a>]]></content>
-      <categories>
-        <category>数据库</category>
-        <category>redis</category>
-      </categories>
-      <tags>
-        <tag>redis</tag>
-        <tag>NoSQl</tag>
+        <tag>语法大全</tag>
       </tags>
   </entry>
   <entry>
@@ -471,10 +1137,5 @@
       <tags>
         <tag>架构</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>SpringMvc</title>
-    <url>/2021/05/31/SpringMvc/</url>
-    <content><![CDATA[]]></content>
   </entry>
 </search>
