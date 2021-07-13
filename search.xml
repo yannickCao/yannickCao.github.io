@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>Java开发手册学习：编程规约（一）</title>
+    <title>Java开发手册学习：编程规约（一、二、三）</title>
     <url>/2021/06/07/Java%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C%E5%AD%A6%E4%B9%A0%EF%BC%9A%E7%BC%96%E7%A8%8B%E8%A7%84%E7%BA%A6%EF%BC%88%E4%B8%80%EF%BC%89/</url>
     <content><![CDATA[<p>本手册以 Java 开发者为中 心视角，划分为编程规约、异常日志、单元测试、安全规约、MySQL 数据库、工程结构、设计规约 七个维度，再根据内容特征，细分成若干二级子目录。另外，依据约束力强弱及故障敏感性，规约依 次分为<font color="red">【强制】</font>、<font color="orange">【推荐】</font>、<font color="green">【参考】</font>三大类。在延伸信息中，<font color="orange">“说明”</font>对规约做了适当扩展和解释; <font color="green">“正例”</font>提倡什么样的编码和实现方式;<font color="red">“反例”</font>说明需要提防的雷区，以及真实的错误案例。</p>
 <a id="more"></a>
@@ -109,7 +109,7 @@
       </tags>
   </entry>
   <entry>
-    <title>Java开发手册学习：编程规约（三）</title>
+    <title>Java开发手册学习：编程规约（六、七）</title>
     <url>/2021/06/09/Java%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C%E5%AD%A6%E4%B9%A0%EF%BC%9A%E7%BC%96%E7%A8%8B%E8%A7%84%E7%BA%A6%EF%BC%88%E4%B8%89%EF%BC%89/</url>
     <content><![CDATA[<h1 id="六、集合处理"><a href="#六、集合处理" class="headerlink" title="六、集合处理"></a>六、集合处理</h1><p>1、<font color="red">【强制】</font> 关于 hashCode 和 equals 的处理，遵循以下规则：</p>
 <figure class="highlight text"><table><tr><td class="code"><pre><span class="line">只要覆写 equals，就必须覆写 hashCode</span><br><span class="line">因为 Set 存储的是不重复对象，依据 hashCode 和 equals 进行判断，所以 Set 存储的对象必须覆写这两个方法</span><br><span class="line">如果自定义对象作为Map的键，那么必须覆写 hashCode 和 equals</span><br></pre></td></tr></table></figure>
@@ -188,6 +188,9 @@
 <p>18、<font color="orange">【推荐】</font> 使用 entrySet 遍历 Map 类集合 KV，而不是 keySet 方式进行遍历</p>
 <p><font color="orange">说明：</font> keySet 其实是遍历了 2 次，一次是为了转为 Iterator 对象，另一次是从 hashMap 中取出 key 对应的 value。 而 entrySet 只是遍历了一次就把 key 和 value 都放到 entry 中，效率更高，如果是 JDK8 ,使用 Map.forEach 方法</p>
 <p><font color="green">正例：</font>values() 返回的是 V 值集合，是一个 list 集合对象；keySet() 返回的是 K 值集合，是一个 Set 集合对象，entrySet() 返回的是 K-V 值组合集合</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">Iterator iterator = map.entrySet().iterator();</span><br><span class="line"><span class="keyword">while</span>(iterator.hasNext())&#123;</span><br><span class="line">  Entry entry = iterator.next();</span><br><span class="line">  Object key = entry.getKey();</span><br><span class="line">  Object value = entry.getValue();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
 <p>19 、<font color="orange">【推荐】</font>高度注意 Map 类集合 K/V 能不能储存 null 值的情况，</p>
 <table>
 <thead>
@@ -256,7 +259,69 @@
 </tr>
 </tbody></table>
 <p>21、<font color="green">【参考】</font> 利用 Set 元素唯一的特性，可以快速对一个集合进行去重操作，避免使用 List 的 contains() 进行遍历去重或者判断包含操作；</p>
-<h1 id="七、并发处理"><a href="#七、并发处理" class="headerlink" title="七、并发处理"></a>七、并发处理</h1>]]></content>
+<h1 id="七、并发处理"><a href="#七、并发处理" class="headerlink" title="七、并发处理"></a>七、并发处理</h1><p>1、<font color="red">【强制】</font> 获取单例对象需要保证线程安全，其中的方法也要保证线程安全。</p>
+<p><font color="orange">说明：</font> 资源驱动类，工具类，单例工厂需要注意</p>
+<p>2、<font color="red">【强制】</font> 创建线程或线程池时请指定有意义的线程名称，方便出错的时候回溯</p>
+<p><font color="green">正例：</font> 自定义线程工厂，并且根据外部特征进行分组，比如，来自同一个机房调用，把机房编号赋值给 whatFeatureOfGroup</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserThreadFactory</span> <span class="keyword">implements</span> <span class="title">ThreadFactory</span> </span>&#123;</span><br><span class="line">	<span class="keyword">public</span> <span class="keyword">final</span> String namePrefix;</span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">final</span> AtomicInteger nextId =  <span class="keyword">new</span> AtomicInter(<span class="number">1</span>);</span><br><span class="line">  </span><br><span class="line">  <span class="comment">// 定义线程名称，利用jstack 排查问题时有帮助</span></span><br><span class="line">  UserThreadFactory(String whatFeatureOfGroup)&#123;</span><br><span class="line">    namePrefix = <span class="string">&quot;From UserThreadFactory&#x27;s &quot;</span> + whatFeatureOfGroup + <span class="string">&quot;-Worker-&quot;</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> Thread <span class="title">newThread</span><span class="params">(Runnable task)</span></span>&#123;</span><br><span class="line">    String name = namePrefix + nextId.getAndIncrement();</span><br><span class="line">    Thread thread = <span class="keyword">new</span> Thread(<span class="keyword">null</span>, task, name, <span class="number">0</span>, <span class="keyword">false</span>);</span><br><span class="line">    System.out.println(thread.getName());</span><br><span class="line">    <span class="keyword">return</span> thread;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>3、<font color="red">【强制】</font>线程资源必须通过线程池提供，不允许在应用中自行显式创建线程</p>
+<p><font color="orange">说明：</font> 线程池的好处是减少在创建和销毁线程上所消耗的时间以及对系统资源的开销。</p>
+<p>4、<font color="red">【强制】</font> 线程池不允许使用 Executors 去创建，而是通过 ThreadPoolExecutor 的方式，这样的处理方式让开发更加明确线程池的运行规则，规避资源耗尽</p>
+<p><font color="orange">说明：</font> Executors 返回的线程池对象弊端</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">FixedThreadPool 和 SingleThreadPool ：允许请求队列长度为 Integer.MAX_VALUE，可能会堆积大量的请求，从而导致 OOM</span><br><span class="line">CachedThreadPool：允许的创建线程数量为 Integer.MAX_VALUE，可能会堆积大量的请求，从而导致 OOM</span><br></pre></td></tr></table></figure>
+<p>5、<font color="red">【强制】</font>SimpleDataFormat 是线程不安全的类，一般不要定义为 static 变量，如果定义为 static，必须加锁，或者使用 DateUtils 工具类</p>
+<p><font color="green">正例：</font> 使用 DateUtils 处理</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> ThreadLocal&lt;DateFormat&gt; df = <span class="keyword">new</span> ThreadLocal&lt;DateFormat&gt;()&#123;</span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="function"><span class="keyword">protected</span> DateFoemat <span class="title">initialValue</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> SimpleDateFormat</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><font color="orange">说明：</font> 如果是 JDK8 的应用，可以用 Instant 代替 Date，LocalDateTime 代替 Calendar，DateTimeFormatter 代替 SimpleDateFormat，SimpleDateFormat 里有一个Calendar 对象引用，他用来存储和这个 SimpleDateFormat 相关的日期信息，如果本身是 static，高并发场景下对象引用会被多个线程修改，导致幻读。官方给出的解释</p>
+<blockquote>
+<p>simple beautiful strong immutable thread-safe</p>
+<p>简单美观强不可变线程安全</p>
+</blockquote>
+<p>6、<font color="red">【强制】</font> 必须回收自定义的 ThreadLocal 变量，尤其在线程池场景下，线程经常会被复用，如果不清理自定义的 ThreadLocal 变量，可能会影响到后续业务逻辑和造成内存泄漏。</p>
+<p><font color="green">正例：</font> 在代理中使用 try-finally 块进行回收</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">objectThreadLocal.set(userInfo);</span><br><span class="line"><span class="keyword">try</span>&#123;</span><br><span class="line">  </span><br><span class="line">&#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">  objectThreadLocal.remove();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>7、<font color="red">【强制】</font>高并发时，同步调用应该去考量锁的性能损耗，能用无锁数据结构，就不要用锁，能锁区块，就不要锁整个方法体，能用对象锁，就不要用类锁。</p>
+<p><font color="orange">说明：</font> 尽量锁最小的满足条件结构，避免在锁代码块中调用 RPC 方法</p>
+<p>8、<font color="red">【强制】</font>对多个资源、数据库表、对象进行同时加锁时，需要保持一致的加锁顺序 ，否则可能会造成死锁。</p>
+<p><font color="orange">说明：</font> 线程一需要对 A、B、C 依次全部加锁后才可已进行更新操作，那么线程二的加锁顺序也必须是 A、B、C 否则会可能发生死锁</p>
+<p>9、<font color="red">【强制】</font>在使用阻塞等待获取锁的方式中，必须在 try 代码块之外，并且在加锁方法与 try 代码块之间没有任何可能抛出异常的方法调用，避免加锁成功后，在 finally 无法解锁</p>
+<p><font color="orange">说明：</font> </p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">一、如果在 lock 方法与 try 代码块之间的方法调用抛出异常，那么无法解锁，造成其他线程无法成功获取锁</span><br><span class="line">二、如果 lock 方法 在 try 代码块之内，可能由于其他方法抛出异常，导致在 finally 代码块中，</span><br><span class="line">unlock 对未加锁的对象解锁，它会调用 AQS 的 tryRelease 方法（取决于具体实现类），</span><br><span class="line">抛出 IllegalMonitorStateException 异常</span><br><span class="line">三、在 Lock 对象的 lock 方法实现中可能抛出 unchecked 异常，产生的后果与说明二相同</span><br></pre></td></tr></table></figure>
+<p><font color="green">正例：</font></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">Lock lock = <span class="keyword">new</span> XxxLock();</span><br><span class="line">lock.lock();</span><br><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">	doSomething();</span><br><span class="line">&#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">	lock.unlock(); </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><font color="red">反例：</font> </p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">Lock lock = <span class="keyword">new</span> XxxLock();</span><br><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">	<span class="comment">// 如果此处抛出异常，则直接执行 finally 代码块，会直接抛出 IllegalMonitorStateException 异常</span></span><br><span class="line">	doSomething();</span><br><span class="line">	lock.lock();</span><br><span class="line">  doOther();</span><br><span class="line">&#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">	lock.unlock(); </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>10、<font color="red">【强制】</font>在使用常识机制来获取锁的方式中，进入业务代码块之前，必须先判断当前线程是否持有锁。锁的释放规则和锁的阻塞等待方式相同</p>
+<p><font color="orange">说明：</font> Lock 对象的 unlock 方法在执行时，它会调用 AQS 的 tryRelease 方法（取决于具体实现类），<br>抛出 IllegalMonitorStateException 异常</p>
+<p><font color="green">正例：</font></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">Lock lock = <span class="keyword">new</span> XxxLock();</span><br><span class="line"><span class="comment">// ...</span></span><br><span class="line"><span class="keyword">boolean</span> isLocked = lock.tryLock();</span><br><span class="line"><span class="keyword">if</span>(isLocked)&#123;</span><br><span class="line">  <span class="keyword">try</span>&#123;</span><br><span class="line">    doSth();</span><br><span class="line">    doOthers();</span><br><span class="line">  &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">    lock.unlock();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>11、<font color="red">【强制】</font>并发修改同一记录时，避免更新丢失，需要加锁。要么在应用层加锁，要么在缓存加锁，要么在数据库层使用乐观锁加锁，使用 version 作为更新依据</p>
+<p><font color="orange">说明：</font> 如果每次访问冲突概率小于 20%，使用乐观锁，否则用悲观锁。乐观锁的重试次数不得小于3次</p>
+<p>12、<font color="red">【强制】</font> 多线程并行处理定时任务时，Timer 运行多个 TimeTask 时，只要其中之一没有捕获抛出的异常，其他任务便会自动终止运行，使用 ScheduledExecutorService 则没有这个问题</p>
+<p>13、<font color="orange">【推荐】</font> 资金相关的金融敏感信息，使用悲观锁策略</p>
+<p><font color="orange">说明：</font> 乐观锁在获得锁的同时已经完成更新操作，检验逻辑容易出现漏洞。另外，乐观锁对冲突的解决策略又较复杂的要求，处理不当容易造成系统或数据压力。</p>
+<blockquote>
+<p>悲观锁遵循 一锁、二判、三更新、四释放的原则</p>
+</blockquote>
+<p>14、<font color="orange">【推荐】</font>使用 CountDownLatch 进行异步转同步操作，每个线程退出前调用 countDown 方法，线程执行 代码注意 catch 异常，确保 countDown 方法被执行到，避免主线程无法执行至 await 方法，知道超时才返回结果</p>
+<p><font color="orange">说明：</font> 注意，子线程抛出异常堆栈，不能在主线程 try-catch 到</p>
+<p>15、<font color="orange">【推荐】</font>避免 Random 实例被多线程使用，虽然共享该实例时线程安全的，但会因竞争同一个 seed 导致性能下降</p>
+<p><font color="orange">说明：</font> Random 实例包括 java.util.Random 的实例或者 Math.random() 的方式；</p>
+<p><font color="green">正例：</font>在 JDK7 之后，可以直接使用 API ThreadLocalRandom，而在 JDK7 之前，需要保证每个线程持有一个单独的 Random 实例</p>
+<p>16、<font color="orange">【推荐】</font>通过双重检查锁( double-checked locking) 在并发场景下存在延迟初始化的优化问题隐患。解决方案：将目标属性声明为 volatile 型，比如将 helper 的属性声明修改为：</p>
+<p><font color="green">正例：</font></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">demo</span></span>&#123;</span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">volatile</span> Helper helper = <span class="keyword">null</span>;</span><br><span class="line">  </span><br><span class="line">  <span class="function"><span class="keyword">public</span> Helper <span class="title">getHelper</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(helper == <span class="keyword">null</span>)&#123;</span><br><span class="line">      <span class="keyword">synchronized</span>(<span class="keyword">this</span>)&#123;</span><br><span class="line">        <span class="keyword">if</span>(helper == <span class="keyword">null</span>)&#123;</span><br><span class="line">          helper = <span class="keyword">new</span> Helper();</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">      <span class="keyword">return</span> helper</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>17、<font color="green">【参考】</font>volatile 解决多线程内存不可见问题。对于一写多读，是可以解决变量同步问题，但如果多写，同样无法解决线程安全问题</p>
+<p><font color="orange">说明：</font> 如果是 count++ 操作，使用</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">AtomicInteger count = <span class="keyword">new</span> AtomicInter();</span><br><span class="line">count.addAndGet(<span class="number">1</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// jdk8 推荐使用 LongAdder 对象，比 AtomicLong 性能更好（减少乐观锁的重试次数）</span></span><br><span class="line"><span class="comment">// LongAdder 使用 cells 实现分摊高并发下的累加压力</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p><a href="https://www.jianshu.com/p/381f9b39c941">AtomicLong和LongAdder的区别</a></p>
+<p><a href="https://blog.csdn.net/h2604396739/article/details/86720618">从AtomicLong到LongAdder，LongAdder的原理</a></p>
+</blockquote>
+<p>18、<font color="green">【参考】</font> HashMap 在容量不够进行 resize 时由于高并发可能出现死链，导致 CPU 飙升，在开发过程中注意规避</p>
+<p>19、<font color="green">【参考】</font>ThreadLocal 对象使用 static 修饰， ThreadLocal 无法解决共享对象的更新问题</p>
+<p><font color="orange">说明：</font> 该变量是针对一个线程内所有操作共享的，所以设置为静态变量，所有此类实例共享此静态变量，也就是说在类第一次被使用时加载，只分配一块存储空间，所有此类的对象都可以操控这个变量</p>
+]]></content>
       <categories>
         <category>Java</category>
       </categories>
@@ -267,7 +332,7 @@
       </tags>
   </entry>
   <entry>
-    <title>Java开发手册学习：编程规约（二）</title>
+    <title>Java开发手册学习：编程规约（四、五）</title>
     <url>/2021/06/08/Java%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C%E5%AD%A6%E4%B9%A0%EF%BC%9A%E7%BC%96%E7%A8%8B%E8%A7%84%E7%BA%A6%EF%BC%88%E4%BA%8C%EF%BC%89/</url>
     <content><![CDATA[<h1 id="四、OPP规约"><a href="#四、OPP规约" class="headerlink" title="四、OPP规约"></a>四、OPP规约</h1><p>1、<font color="red">【强制】</font> 避免通过一个类的对象来引用访问此类的静态变量或静态方法，无谓增加编译器解析成本，直接使用 <strong>类名</strong> 来请求就行（不要new 静态对象访问）</p>
 <p>2、<font color="red">【强制】</font> 所有的覆写方法，必须加 @Override 注解</p>
@@ -1136,6 +1201,282 @@
       </categories>
       <tags>
         <tag>正则表达式</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>RabbitMQ学习（二）：消息模型</title>
+    <url>/2021/07/09/RabbitMQ%E5%AD%A6%E4%B9%A0%EF%BC%88%E4%BA%8C%EF%BC%89%EF%BC%9A%E6%B6%88%E6%81%AF%E6%A8%A1%E5%9E%8B/</url>
+    <content><![CDATA[<p>本文用springboot 整合 rabbitmq 来说明 RabbitMQ 的多种消息模型，因为 RPC 属于的是接口，并不是 MQ 独有，此处不介绍</p>
+<a id="more"></a>
+
+<h1 id="一、模型介绍"><a href="#一、模型介绍" class="headerlink" title="一、模型介绍"></a>一、模型介绍</h1><p><img src="https://gitee.com/yannickCao/blogimg/raw/master/img/20210709094119.png"></p>
+<p>1、基本消息模型：生产者-&gt;队列-&gt;单个消费者</p>
+<p>2、work 消息模型：生产者-&gt;队列-&gt;多个消费者</p>
+<p>3、订阅者模型-Fanout：广播，将消息交给所有绑定到交换机的队列，每个消费者都可以收到同一条消息</p>
+<p>4、订阅者模式-Direct：路由，将消息交给跟指定 routeKey 完全一致的队列</p>
+<p>5、订阅者模式-Topic：通配符，把消息交给符合 routing pattern（主题模式）的队列</p>
+<p>pom.xml配置</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-amqp<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>application.yml</p>
+<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">server:</span></span><br><span class="line">  <span class="attr">tomcat:</span></span><br><span class="line">  <span class="comment"># rabbitmq</span></span><br><span class="line">    <span class="attr">uri-encoding:</span> <span class="string">UTF-8</span></span><br><span class="line">    <span class="attr">max-threads:</span> <span class="number">1000</span></span><br><span class="line">    <span class="attr">min-spare-threads:</span> <span class="number">30</span></span><br><span class="line">  <span class="attr">servlet:</span></span><br><span class="line">    <span class="attr">context-path:</span> <span class="string">/rabbitmq</span></span><br><span class="line"></span><br><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="comment"># rabbitmq</span></span><br><span class="line">  <span class="attr">servlet:</span></span><br><span class="line">    <span class="attr">multipart:</span></span><br><span class="line">      <span class="attr">max-file-size:</span> <span class="string">100MB</span></span><br><span class="line">      <span class="attr">max-request-size:</span> <span class="string">100MB</span></span><br><span class="line">      <span class="attr">enabled:</span> <span class="literal">true</span></span><br><span class="line">  <span class="attr">rabbitmq:</span></span><br><span class="line">    <span class="attr">host:</span> <span class="string">localhost</span></span><br><span class="line">    <span class="attr">port:</span> <span class="number">5672</span></span><br><span class="line">    <span class="attr">virtual-host:</span> <span class="string">admin</span></span><br><span class="line">    <span class="attr">username:</span> <span class="string">admin</span></span><br><span class="line">    <span class="attr">password:</span> <span class="number">123456</span></span><br><span class="line">    <span class="comment">#超时时间</span></span><br><span class="line">    <span class="attr">connection-timeout:</span> <span class="number">10000</span></span><br><span class="line">    <span class="comment">#开启消息确认模式</span></span><br><span class="line">    <span class="attr">publisher-confirms:</span> <span class="literal">true</span></span><br><span class="line">    <span class="comment">#开启消息送达提示</span></span><br><span class="line">    <span class="attr">publisher-returns:</span> <span class="literal">true</span></span><br><span class="line">    <span class="comment">#开启不可达消息不会被broker给删除</span></span><br><span class="line">    <span class="attr">template:</span></span><br><span class="line">      <span class="attr">mandatory:</span> <span class="literal">true</span></span><br><span class="line">    <span class="attr">listener:</span></span><br><span class="line">      <span class="attr">simple:</span></span><br><span class="line">        <span class="comment">#acknowledge-mode: manual #设置确认模式手工确认</span></span><br><span class="line">        <span class="attr">concurrency:</span> <span class="number">3</span> <span class="comment">#消费者最小数量</span></span><br><span class="line">        <span class="attr">max-concurrency:</span> <span class="number">10</span> <span class="comment"># 消费者最大数量</span></span><br></pre></td></tr></table></figure>
+
+
+<h1 id="二、模型详解"><a href="#二、模型详解" class="headerlink" title="二、模型详解"></a>二、模型详解</h1><h2 id="1、简单队列"><a href="#1、简单队列" class="headerlink" title="1、简单队列"></a>1、简单队列</h2><p>生产者</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 直接输入队列名称</span></span><br><span class="line">amqpTemplate.convertAndSend(<span class="string">&quot;spring.simple.queue&quot;</span>, msg );</span><br></pre></td></tr></table></figure>
+<p>消费者</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SimpleListener</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 通过注解自动创建 spring.simple.queue 队列， queuesToDeclare注解 如果不存在就会创建</span></span><br><span class="line">    <span class="meta">@RabbitListener(queuesToDeclare = @Queue(&quot;spring.simple.queue&quot;))</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">listen</span><span class="params">(String msg)</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;简单队列 接收到消息：&quot;</span> + msg);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="2、work模型"><a href="#2、work模型" class="headerlink" title="2、work模型"></a>2、work模型</h2><p>生产者</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">amqpTemplate.convertAndSend(<span class="string">&quot;spring.work.queue&quot;</span>, msg);</span><br></pre></td></tr></table></figure>
+<p>消费者</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">WorkListener</span> </span>&#123;</span><br><span class="line">		<span class="comment">// 多个消费者绑定在同一个队列中</span></span><br><span class="line">    <span class="comment">// 通过注解自动创建 spring.work.queue 队列</span></span><br><span class="line">    <span class="meta">@RabbitListener(queuesToDeclare = @Queue(&quot;spring.work.queue&quot;))</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">listen1</span><span class="params">(String msg)</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;work模型一 接收到消息：&quot;</span> + msg);</span><br><span class="line">    &#125;</span><br><span class="line">  </span><br><span class="line">    <span class="comment">// 通过注解自动创建 spring.work.queue 队列</span></span><br><span class="line">    <span class="meta">@RabbitListener(queuesToDeclare = @Queue(&quot;spring.work.queue&quot;))</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">listen2</span><span class="params">(String msg)</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;work模型二 接收到消息：&quot;</span> + msg);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="3、订阅者模式-fanout（广播）"><a href="#3、订阅者模式-fanout（广播）" class="headerlink" title="3、订阅者模式-fanout（广播）"></a>3、订阅者模式-fanout（广播）</h2><p>也可以称为广播模式，流程如下</p>
+<ul>
+<li>多个消费者，每个消费者都有自己的队列</li>
+<li>每个队列都绑定到 Exchange（交换机）</li>
+<li>生产者无法决定发送到那些队列，由 Exchange 把消息发送到绑定过的所有队列</li>
+<li>队列的消费者都能拿到消息，实现一条消息被多个消费者消费</li>
+</ul>
+<p>应用场景</p>
+<ul>
+<li>同时更新多个地方的数据信息，比如多库数据库，或者 redis 缓存等实现多出修改</li>
+</ul>
+<p>SpringBoot  bean配置</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* fanout模式交换机</span></span><br><span class="line"><span class="comment">* <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">bindingFanout</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="comment">//durable 是否持久化</span></span><br><span class="line">  <span class="comment">//autoDelete 消息是否自动删除，当所有消费客户端连接断开后，是否自动删除队列</span></span><br><span class="line">  FanoutExchange fanoutExchange = <span class="keyword">new</span> FanoutExchange(FANOUT_EXCHANGE, <span class="keyword">true</span>, <span class="keyword">false</span>);</span><br><span class="line">  Queue personQueue = <span class="keyword">new</span> Queue(PERSON_FANOUT_QUEUE, <span class="keyword">true</span>, <span class="keyword">false</span>, <span class="keyword">false</span>);</span><br><span class="line">  BindingBuilder.bind(personQueue).to(fanoutExchange);</span><br><span class="line">  Queue moneyQueue = <span class="keyword">new</span> Queue(MONEY_FANOUT_QUEUE, <span class="keyword">true</span>, <span class="keyword">false</span>, <span class="keyword">false</span>);</span><br><span class="line">  BindingBuilder.bind(moneyQueue).to(fanoutExchange);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其中初始化 Exchange 时的参数</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// durable 表示是否持久化，指 mq 重启或者断线后是否存在</span></span><br><span class="line"><span class="comment">// autoDelete 在没有生产者发送消息时是否自动删除</span></span><br><span class="line"><span class="keyword">new</span> FanoutExchange(FANOUT_EXCHANGE, durable, autoDelete)</span><br></pre></td></tr></table></figure>
+<p>其中 Queue 的参数</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// durable 表示是否持久化，指 mq 重启或者断线后是否存在</span></span><br><span class="line"><span class="comment">// exclusive 表示排他性，声明后只对首次声明它的连接可见，并且在断开时自动删除，</span></span><br><span class="line"><span class="comment">// 					其中只针对连接可见，只要是当前 connection 下的信道都可以访问</span></span><br><span class="line"><span class="comment">//					一旦该队列被声明，其他连接无法声明相同名称的排他队列</span></span><br><span class="line"><span class="comment">//					队列即使显式声明为 durable，连接断开时（并不是信道断开）也会被删除</span></span><br><span class="line"><span class="comment">// autoDelete 在没有生产者发送消息时是否自动删除</span></span><br><span class="line"><span class="keyword">new</span> Queue(MONEY_FANOUT_QUEUE, durable, exclusive, autoDelete);</span><br></pre></td></tr></table></figure>
+<p>消息也可以持久化</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"># 增加properties，这个properties 就是消费端 callback函数中的properties</span><br><span class="line"># delivery_mode = 2  持久化消息</span><br><span class="line">channel.basic_publish(exchange=<span class="string">&#x27;&#x27;</span>,</span><br><span class="line">                      routing_key=<span class="string">&#x27;hello&#x27;</span>,</span><br><span class="line">                      body=<span class="string">&#x27;hello&#x27;</span>,</span><br><span class="line">                      properties=pika.BasicProperties(</span><br><span class="line">                        delivery_mode=2,  # make message persistent</span><br><span class="line">                      ))</span><br><span class="line"> </span><br></pre></td></tr></table></figure>
+
+
+<p>生产者</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 只需要写交换机的名称，第二个值留空，会分发到所有绑定的列表中</span></span><br><span class="line">amqpTemplate.convertAndSend(<span class="string">&quot;spring.fanout.exchange&quot;</span>, <span class="string">&quot;&quot;</span>, msg);</span><br></pre></td></tr></table></figure>
+<p>消费者</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@RabbitListener(queuesToDeclare = @Queue(PERSON_FANOUT_QUEUE))</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">listen1</span><span class="params">(String msg)</span> </span>&#123;</span><br><span class="line">  System.out.println(<span class="string">&quot;person队列 接收到消息：&quot;</span> + msg);</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">@RabbitListener(queuesToDeclare = @Queue(MONEY_FANOUT_QUEUE))</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">listen2</span><span class="params">(String msg)</span> </span>&#123;</span><br><span class="line">  System.out.println(<span class="string">&quot;money队列 接收到消息：&quot;</span> + msg);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="4、订阅者模式-direct（路由）"><a href="#4、订阅者模式-direct（路由）" class="headerlink" title="4、订阅者模式-direct（路由）"></a>4、订阅者模式-direct（路由）</h2><p>在 fanout 模式下，一条消息，会被所有订阅的队列消费，但是在特定情况下，我们希望不同的消息被不同的队列消费，这时会用到 Direct 类型的 Exchange，通过 RoutingKey 来划分到不同的队列中</p>
+<p>流程如下</p>
+<ul>
+<li>队列和交换机的绑定，不能再任意绑定，需要指定一个 RoutingKey（路由key）</li>
+<li>消息的发送方在向 Exchange 发送消息时，也必须指定消息的 RoutingKey</li>
+<li>Exchange 不再把消息交给每一个绑定的队列，而是根据消息的 RoutingKey 进行判断，只有队列的 RoutingKey 与消息的 RoutingKey 完全一致，才会收到消息</li>
+</ul>
+<p>SpringBoot 配置信息</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* direct 模式交换机</span></span><br><span class="line"><span class="comment">* <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">bindingDirect</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="comment">//durable 是否持久化</span></span><br><span class="line">  <span class="comment">//autoDelete 消息是否自动删除，当所有消费客户端连接断开后，是否自动删除队列</span></span><br><span class="line">  DirectExchange directExchange = <span class="keyword">new</span> DirectExchange(DIRECT_EXCHANGE, <span class="keyword">true</span>, <span class="keyword">false</span>);</span><br><span class="line">  Queue personQueue = <span class="keyword">new</span> Queue(PERSON_DIRECT_QUEUE, <span class="keyword">true</span>, <span class="keyword">false</span>, <span class="keyword">false</span>);</span><br><span class="line">  BindingBuilder.bind(personQueue).to(DirectExchange).with(<span class="string">&quot;person&quot;</span>);</span><br><span class="line">  Queue moneyQueue = <span class="keyword">new</span> Queue(MONEY_DIRECT_QUEUE, <span class="keyword">true</span>, <span class="keyword">false</span>, <span class="keyword">false</span>);</span><br><span class="line">  BindingBuilder.bind(moneyQueue).to(directExchange).with(<span class="string">&quot;money&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>生产者</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 通过 PERSON_QUEUE_KEY 发送到 PERSON_DIRECT_QUEUE</span></span><br><span class="line">amqpTemplate.convertAndSend(DIRECT_EXCHANGE, <span class="string">&quot;person&quot;</span>, msg);</span><br><span class="line"><span class="comment">// 通过 MONEY_QUEUE_KEY 发送到 MONEY_DIRECT_QUEUE</span></span><br><span class="line">amqpTemplate.convertAndSend(DIRECT_EXCHANGE, <span class="string">&quot;money&quot;</span>, msg);</span><br></pre></td></tr></table></figure>
+<p>消费者</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@RabbitListener(queuesToDeclare = @Queue(PERSON_DIRECT_QUEUE))</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">listen1</span><span class="params">(String msg)</span> </span>&#123;</span><br><span class="line">  System.out.println(<span class="string">&quot;person队列 接收到消息：&quot;</span> + msg);</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">@RabbitListener(queuesToDeclare = @Queue(MONEY_DIRECT_QUEUE))</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">listen2</span><span class="params">(String msg)</span> </span>&#123;</span><br><span class="line">  System.out.println(<span class="string">&quot;money队列 接收到消息：&quot;</span> + msg);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="5、订阅者模式-Topic（主题）"><a href="#5、订阅者模式-Topic（主题）" class="headerlink" title="5、订阅者模式-Topic（主题）"></a>5、订阅者模式-Topic（主题）</h2><p>Topic 类型的 Exchange 与 Direct 相比，都是可以根据 RoutingKey 吧消息路由到不同的队列，只不过 Topic 类型 Exchange 可以让队列在绑定 RouteKey 的时候用通配符</p>
+<p>Routekey 一般都是有一个或多个单词组成，多个单词之间以”.“分割，例如 user.insert</p>
+<table>
+<thead>
+<tr>
+<th>通配符规则</th>
+<th>举例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>#：匹配一个或多个词</td>
+<td>person.#：能够匹配 person.insert.save 或者 person.insert</td>
+</tr>
+<tr>
+<td>*：匹配一个词</td>
+<td>person.*：只够匹配 person.insert</td>
+</tr>
+</tbody></table>
+<p>SpringBoot bean配置</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* topic模式交换机</span></span><br><span class="line"><span class="comment">* <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">bindingTopic</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="comment">//durable 是否持久化</span></span><br><span class="line">  <span class="comment">//autoDelete 消息是否自动删除，当所有消费客户端连接断开后，是否自动删除队列</span></span><br><span class="line">  TopicExchange topicExchange = <span class="keyword">new</span> TopicExchange(TOPIC_EXCHANGE, <span class="keyword">true</span>, <span class="keyword">false</span>);</span><br><span class="line">  Queue personQueue = <span class="keyword">new</span> Queue(PERSON_TOPIC_QUEUE, <span class="keyword">true</span>, <span class="keyword">false</span>, <span class="keyword">false</span>);</span><br><span class="line">  BindingBuilder.bind(personQueue).to(topicExchange).with(<span class="string">&quot;person.*&quot;</span>);</span><br><span class="line">  Queue moneyQueue = <span class="keyword">new</span> Queue(MONEY_TOPIC_QUEUE, <span class="keyword">true</span>, <span class="keyword">false</span>, <span class="keyword">false</span>);</span><br><span class="line">  BindingBuilder.bind(moneyQueue).to(topicExchange).with(<span class="string">&quot;money.*&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>生产者</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">amqpTemplate.convertAndSend(TOPIC_EXCHANGE, <span class="string">&quot;person.insert&quot;</span>, <span class="string">&quot;增加人员&quot;</span>);</span><br><span class="line">amqpTemplate.convertAndSend(TOPIC_EXCHANGE, <span class="string">&quot;person.delete&quot;</span>, <span class="string">&quot;删除人员&quot;</span>);</span><br><span class="line"></span><br><span class="line">amqpTemplate.convertAndSend(TOPIC_EXCHANGE, <span class="string">&quot;money.insert&quot;</span>, <span class="string">&quot;加钱&quot;</span>);</span><br><span class="line">amqpTemplate.convertAndSend(TOPIC_EXCHANGE, <span class="string">&quot;money.delete&quot;</span>, <span class="string">&quot;减钱&quot;</span>);</span><br></pre></td></tr></table></figure>
+<p>消费者</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 接收到 &quot;person.insert&quot; 和 &quot;person.delete&quot; 消息</span></span><br><span class="line"><span class="meta">@RabbitListener(queuesToDeclare = @Queue(PERSON_TOPIC_QUEUE))</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">listen1</span><span class="params">(String msg)</span> </span>&#123;</span><br><span class="line">  System.out.println(<span class="string">&quot;person队列 接收到消息：&quot;</span> + msg);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 接收到 &quot;money.insert&quot; 和 &quot;money.delete&quot; 消息</span></span><br><span class="line"><span class="meta">@RabbitListener(queuesToDeclare = @Queue(MONEY_TOPIC_QUEUE))</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">listen2</span><span class="params">(String msg)</span> </span>&#123;</span><br><span class="line">  System.out.println(<span class="string">&quot;money队列 接收到消息：&quot;</span> + msg);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+]]></content>
+      <categories>
+        <category>消息队列</category>
+        <category>RabbitMQ</category>
+      </categories>
+      <tags>
+        <tag>消息队列</tag>
+        <tag>RabbitMQ</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Java开发手册学习：编程规约（八、九、十、十一）</title>
+    <url>/2021/06/21/Java%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C%E5%AD%A6%E4%B9%A0%EF%BC%9A%E7%BC%96%E7%A8%8B%E8%A7%84%E7%BA%A6%EF%BC%88%E5%9B%9B%EF%BC%89/</url>
+    <content><![CDATA[<h1 id="八、控制语句"><a href="#八、控制语句" class="headerlink" title="八、控制语句"></a>八、控制语句</h1><p>1、<font color="red">【强制】</font>每个case要么通过continue/break/return等来终止，要么 注释说明程序将继续执行到哪一个 case 为止;在一个 switch 块内，都必须包含一个 default 20/59</p>
+<p>Java 开发手册 语句并且放在最后，即使它什么代码也没有。</p>
+<p><font color="orange">说明：</font> 注意 break 是退出 switch 语句块，而 return 是退出方法体。</p>
+<p>2、<font color="red">【强制】</font>当 switch 括号内的变量类型为 String 并且此变量为外部参数时，必须先进行 null 判断，直接判断会报错：NPE</p>
+<p>3、<font color="red">【强制】</font>在 if / else / for / while / do 语句中必须使用大括号</p>
+<p>4、<font color="red">【强制】</font>三目运算符 condition ? 表达式1 : 表达式2 中，注意表达式1 和表达式2在类型对齐时，可能抛出因自动拆箱导致的 NPE 异常</p>
+<p><font color="orange">说明：</font> 以下两种场景会触发类型对齐的拆箱操作：</p>
+<ul>
+<li><p>1、表达式1 或者 表达式2 的值只要有一个是原始类型</p>
+</li>
+<li><p>2、 表达式1 或者 表达式2 的值类型不一致，会强制拆箱升级成表示范围更大的那个类型</p>
+</li>
+</ul>
+<p><font color="red">反例：</font> </p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">Integer a = <span class="number">1</span>;</span><br><span class="line">Integer b = <span class="number">2</span>;</span><br><span class="line">Integer c = <span class="keyword">null</span>;</span><br><span class="line"><span class="keyword">boolean</span> flag = <span class="keyword">false</span>;</span><br><span class="line">Integer result = (flag ? a*b : c);</span><br></pre></td></tr></table></figure>
+<p>5、<font color="red">【强制】</font> 在高并发场景中，避免使用”等于“判断作为终端或者退出的条件</p>
+<p><font color="orange">说明：</font> 如果并发控制没有处理好，容易产生等值判断被”击穿“的情况，使用大于或者小于的区间判断条件来代替</p>
+<p><font color="red">反例：</font> 判断生育奖品等于0时退出循环判断，但因为高并发处理错误导致奖数量瞬间变成负数，导致活动无法终止，应改为 小于等于0；</p>
+<p>6、<font color="orange">【推荐】</font>当某个方法的代码总行数不超过 10 行时，return / throw 等中断逻辑的右大括号后均加一个空行</p>
+<p>7、<font color="orange">【推荐】</font>表达异常的分支时，少用 if-else ，改写为多个卫语句组合</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span>(condition)&#123;</span><br><span class="line">  ……</span><br><span class="line">  <span class="keyword">return</span> obj;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// else 分支</span></span><br></pre></td></tr></table></figure>
+<p>如果非使用，避免超过3层，导致后续代码维护困难</p>
+<p>8、<font color="orange">【推荐】</font>除常用方法 （getXxx / setXxx）外，不要再条件判断中执行其他复杂的语句，将复杂逻辑判断的结果赋值给一个有意义的布尔变量名</p>
+<p><font color="red">反例：</font> </p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">if ((file.open(fileName, &quot;w&quot;) !&#x3D; null) &amp;&amp; (...) || (...)) &#123;</span><br><span class="line">	...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><font color="green">正例：</font> </p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 赋值给变量再判断</span></span><br><span class="line"><span class="keyword">final</span> <span class="keyword">boolean</span> existed = (file.open(fileName, <span class="string">&quot;w&quot;</span>) != <span class="keyword">null</span>) &amp;&amp; (...) || (...); </span><br><span class="line"><span class="keyword">if</span> (existed) &#123;</span><br><span class="line">	...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>9、<font color="orange">【推荐】</font>不要再其他表达式（尤其是条件表达式）中，插入赋值语句</p>
+<p><font color="red">反例：</font> </p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> Lock <span class="title">getLock</span><span class="params">(Integer count, <span class="keyword">boolean</span> sync)</span></span>&#123;</span><br><span class="line">  <span class="comment">// 算术表达式中出现赋值操作，容易忽略 count 值已经被改变</span></span><br><span class="line">  Integer param = (count = Integer.MAX_VALUE) - <span class="number">1</span>;</span><br><span class="line">  <span class="keyword">if</span>((count = Integer.MAX_VALUE) &gt; <span class="number">1</span> )&#123;</span><br><span class="line">    <span class="keyword">boolean</span> flag = <span class="keyword">false</span>;</span><br><span class="line"><span class="comment">// 条件表达式中出现赋值操作，容易误认为是 sync==flag</span></span><br><span class="line">    <span class="keyword">return</span> (sync = flag) ? <span class="keyword">new</span> FairSync() : <span class="keyword">new</span> NonfairSync();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>10、<font color="orange">【推荐】</font>循环体中的语句要考量性能，定义对象、变量、获取数据库连接，进行不必要的 try-catch操作等尽量移到循环体外</p>
+<p>11、<font color="orange">【推荐】</font>避免采用取反逻辑运算符，采用正向逻辑能有利于快速理解</p>
+<p>12、<font color="orange">【推荐】</font>公开接口需要进行入参保护，尤其是批量操作的接口，控制批量操作接口的入参数量，防止内存爆</p>
+<p>13、<font color="green">【参考】</font>下列情况，需要进行参数检验</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">调用频次低的方法</span><br><span class="line">执行时间开销很大的方法中，参数检验时间几乎忽略不计，但如果因为参数错误导致中间执行回退，或者错误，得不偿失</span><br><span class="line">需要极高稳定性和可用性的方法</span><br><span class="line">对外提供的开放接口，不管是 RPC 、API、HTTP 接口</span><br><span class="line">敏感权限入口</span><br></pre></td></tr></table></figure>
+<p>14、<font color="green">【参考】</font>下列情形，不需要进行参数检验</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">极有可能被循环调用的方法，但在方法说明里必须注明外部参数检查</span><br><span class="line">底层调用频率比较高的方法。一般 DAO 层与 Service 层都在同一个应用中，部署在同一个服务器中，所以 DAO 层的参数检验可以省略</span><br><span class="line">被声明成 private 只会被自己代码调用的方法，如果能够确定调用方法的代码传入参数已经做过检查或者肯定不会有问题</span><br></pre></td></tr></table></figure>
+
+
+<h1 id="九、注释规约"><a href="#九、注释规约" class="headerlink" title="九、注释规约"></a>九、注释规约</h1><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/***</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@param</span>: 参数</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@description</span>: TODO 方法描述</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@return</span>: 返回值</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@author</span>: 作者</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@date</span>: 时间</span></span><br><span class="line"><span class="comment">	 **/</span></span><br></pre></td></tr></table></figure>
+<p>1、<font color="red">【强制】</font>类、类属性、类方法的注释必须使用Javadoc规范，使用/**内容*/格式，不得使用 // xxx 方式。</p>
+<p>2、<font color="red">【强制】</font>所有抽象方法（包括接口的方法）必须要用Javadoc注释、除了返回值、参数、 异常说明外，还必须指出该方法做什么事情，实现什么功能。</p>
+<p>3、<font color="red">【强制】</font>所有的类都必须添加创建者和创建日期</p>
+<p>4、<font color="red">【强制】</font>方法内部单行注释，在被注释语句上方另起一行，使用//注释。方法内部多行注释使 用/* */注释，注意与代码对齐。</p>
+<p>5、<font color="red">【强制】</font>所有的枚举类型字段必须要有注释，说明每个数据项的用途。</p>
+<p>6、<font color="orange">【推荐】</font>与其“半吊子”英文来注释，不如用中文注释把问题说清楚。专有名词与关键字保持 英文原文即可。</p>
+<p>7、<font color="orange">【推荐】</font>代码修改的同时，注释也要进行相应的修改，尤其是参数、返回值、异常、核心逻辑 等的修改。</p>
+<p>8、<font color="orange">【推荐】</font>在类中删除未使用的任何字段、方法、内部类;在方法中删除未使用的任何参数声明 与内部变量。</p>
+<p>9、<font color="green">【参考】</font>谨慎注释掉代码。在上方详细说明，而不是简单地注释掉。如果无用，则删除。</p>
+<p>代码被注释掉有两种可能性</p>
+<ul>
+<li><p>后续会恢复此段代码逻辑。如果没有备注信息， 难以知晓注释动机。</p>
+</li>
+<li><p>永久不用。建议直接删掉即可，假如需要查阅历史代码，登录代码仓库即可。</p>
+</li>
+</ul>
+<p>10、<font color="green">【参考】</font>对于注释的要求:第一、能够准确反映设计思想和代码逻辑;第二、能够描述业务含 义，使别的程序员能够迅速了解到代码背后的信息。完全没有注释的大段代码对于阅读者形同 天书，注释是给自己看的，即使隔很长时间，也能清晰理解当时的思路;注释也是给继任者看 的，使其能够快速接替自己的工作。</p>
+<p>11、<font color="green">【参考】</font>好的命名、代码结构是自解释的，注释力求精简准确、表达到位。避免出现注释的一</p>
+<p>个极端:过多过滥的注释，代码的逻辑一旦修改，修改注释又是相当大的负担。</p>
+<p>12、<font color="green">【参考】</font>特殊注释标记，请注明标记人与标记时间。注意及时处理这些标记，通过标记扫描， 经常清理此类标记。线上故障有时候就是来源于这些标记处的代码。</p>
+<ul>
+<li><p>待办事宜（TODO）：（标记人，标记时间，[预计处理时间]）表示需要实现</p>
+</li>
+<li><p>错误，不能工作（FIXME）:(标记人，标记时间，[预计处理时间])，表示需要纠正</p>
+</li>
+</ul>
+<h1 id="十、前后端规约"><a href="#十、前后端规约" class="headerlink" title="十、前后端规约"></a>十、前后端规约</h1><p>1、<font color="red">【强制】</font>前后端交互的 API，需要明确协议，域名，路径，请求方式，请求内容，状态码，响应体</p>
+<p><font color="orange">说明：</font> </p>
+<p>1）协议：生产环境必须使用 HTTPS。</p>
+<p>2）路径：每一个 API 需要对应一个路径，表示 API 具体的请求地址：</p>
+<ul>
+<li><p>代表一种资源，只能为名词，推荐使用复数，不能为动词，请求方法已经表达动作意义</p>
+</li>
+<li><p>URL 路径不能使用大写，单词如果需要分隔，统一使用下划线</p>
+</li>
+<li><p>路径禁止携带表示请求内容类型的后缀，比如 ”*.json“,”.xml”，通过 accept 头表达</p>
+</li>
+</ul>
+<p>3）请求方法:对具体操作的定义，常见的请求方法如下:</p>
+<ul>
+<li>GET:从服务器取出资源。</li>
+<li>POST:在服务器新建一个资源。</li>
+<li>PUT:在服务器更新资源。</li>
+<li>DELETE:从服务器删除资源。</li>
+</ul>
+<p>4）请求内容：URL 带的参数必须无敏感信息或符合安全要求；body里待参数时必须设置 Content-Type</p>
+<p>5）响应体：响应体 body 设置多种数据类型，由 Content-Type 头来确定</p>
+<p>2、<font color="red">【强制】</font>前后端数据列表相关的接口返回，如果为空，则返回数组[] 或空集合{}</p>
+<p><font color="orange">说明：</font> 此条约有利于数据层面上的协同更加高效，减少前端很多烦琐的 null 判断</p>
+<p>3、服务端发生错误时，返回给前端的响应信息必须包含 HTTP 状态码，errorCode、errorMessage、用户提示信息四个部分</p>
+<p><font color="orange">说明：</font> 四个部分设计对象分别是 </p>
+<ul>
+<li>HTTP状态码-浏览器</li>
+<li>前端开发-errorCode，errorCode:参考<strong>附表</strong> <strong>3</strong>。</li>
+<li>错误排查人员-errorMessage，简要描述后端出错原因，便于错误排 查人员快速定位问题，注意不要包含敏感数据信息。</li>
+<li>用户提示信息-用户。其中输出给用户的信息力求：简短清晰，提示友好，引导用户进行下一步操作或者解释错误原因。提示信息可以包括错误原因、上 下文环境、推荐操作等。 </li>
+</ul>
+<p><font color="green">正例：</font>常见的 HTTP 状态码如下</p>
+<ul>
+<li>200 OK: 表明该请求被成功地完成，所请求的资源发送到客户端。</li>
+<li>401 Unauthorized: 请求要求身份验证，常见对于需要登录而用户未登录的情况。</li>
+<li>403 Forbidden:服务器拒绝请求，常见于机密信息或复制其它登录用户链接访问服务器的情况。</li>
+<li>404 Not Found: 服务器无法取得所请求的网页，请求资源不存在。</li>
+<li>500 Internal Server Error: 服务器内部错误。</li>
+</ul>
+<p>4、<font color="red">【强制】</font>在前后端交互的 JSON 格式数据中，所有的 key 必须为小写字母开始的 lowerCamelCase 风格</p>
+<p>5、<font color="red">【强制】</font> errorMessage 是前后端错误追踪机制的体现，可以在前端输出到 type=”hidden” 文字类控件中，或者用户端的日志中，帮助我们快速地定位出问题。</p>
+<p>6、<font color="red">【强制】</font> 对于需要使用超大整数的场景，服务端一律使用 String 字符串类型返回，禁止使用 Long 类型</p>
+<p><font color="orange">说明：</font> java 服务端如果直接返回 Long 类型，js会自动转换为 Number 类型。导致精度丢失</p>
+<p><font color="red">反例：</font> 订单号或者交易号大于16位，大概率会出现前后端 单据不一致的情况</p>
+<p>7、<font color="red">【强制】</font>HTTP请求通过 URL 传递参数时，不能超过 2048 字节</p>
+<p>不同浏览器对于 URL 的最大长度限制略有不同，并且对超出最大长度的处理逻辑也有差异，2048 字节是取所有浏览器的最小值。如果超过最大值导致参数被截断，业务逻辑不完整</p>
+<p>8、<font color="red">【强制】</font>HTTP请求通过 body 传递内容时，必须控制长度，超出最大长度后，后端解析会出错</p>
+<p><font color="orange">说明：</font> nginx 默认限制是 1MB，tomcat 默认限制为 2MB，当确实有业务需要传较大内容时，可以通过调大服务器端的限制。</p>
+<p>9、<font color="red">【强制】</font>在翻页场景中，用户输入的参数小于1，则前端返回第一页参数给后端，后端发现用户输入的参数大于总页数，直接返回最后一页</p>
+<p>10、<font color="red">【强制】</font> 服务器内部重定向必须使用 forward；外部重定向地址必须使用 URL 统一代理模块生成，否则会因为线上采用 HTTPS 协议而导致浏览器提示 ”不安全“，并且还会带来 URL 维护不一致的问题</p>
+<p>11、<font color="orange">【推荐】</font>服务器返回信息必须被标记是否可以缓存，如果缓存，客户端可能会重用之前的请求结果</p>
+<p><font color="orange">说明：</font> 缓存有利于减少交互次数，减少交互的平均延迟。<br><font color="green">正例：</font>http 1.1 中，s-maxage 告诉服务器进行缓存，时间单位为秒，用法如下，</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">response.setHeader(<span class="string">&quot;Cache-Control&quot;</span>, <span class="string">&quot;s-maxage=&quot;</span> + cacheSeconds);</span><br></pre></td></tr></table></figure>
+<p>12、<font color="orange">【推荐】</font> 服务端返回的数据，使用 JSON 格式而不是 XML</p>
+<p><font color="orange">说明：</font> 尽管 HTTP 支持使用不同的输出格式，例如纯文本，JSON，CSV，XML，RSS 甚至 HTML。如果我 们使用的面向用户的服务，应该选择 JSON 作为通信中使用的标准数据交换格式，包括请求和响应。此外， application/JSON 是一种通用的 MIME 类型，具有实用、精简、易读的特点。</p>
+<p>13、<font color="orange">【推荐】</font>前后端的时间统一格式为”yyyy-MM-dd HH:mm:ss”，统一为 GMT</p>
+<p>14、<font color="green">【参考】</font>接口路径中不要加入版本号，版本控制在 HTTP 头信息中体现，有利于向前兼容</p>
+<p><font color="orange">说明：</font> 当用户在低版本与高版本之间反复切换工作时，会导致迁移复杂度升高，存在数据错乱风险。</p>
+<h1 id="十一、其他规约"><a href="#十一、其他规约" class="headerlink" title="十一、其他规约"></a>十一、其他规约</h1><p>1、<font color="red">【强制】</font> 在使用正则表达式时，利用好其预编译功能，可以有效加快正则匹配速度</p>
+<p><font color="orange">说明：</font> 不要在方法体内定义:Pattern pattern = Pattern.compile(“规则”);</p>
+<p><font color="green">正例：</font></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// Pattern 表达式要提前定义，不要再需要的地方临时定义；</span></span><br><span class="line"><span class="comment">// Pattern 表达式要定义为 static final 静态变量，以避免执行多次预编译。</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Pattern pattern = Pattern.compile(regexRule);</span><br></pre></td></tr></table></figure>
+<p>2、<font color="red">【强制】</font> 避免用 Apache Beanutills 进行属性 copy</p>
+<p><font color="orange">说明：</font> Apache BeanUtils 性能较差，可以使用其他方案比如：Spring BeanUtils，Cglib BeanCopier，注意均是浅拷贝</p>
+<p>3、<font color="red">【强制】</font> veloctiry 调用 POJO 类的属性时，直接使用属性名取值即可，模板引擎会自动按规范调用 POJO 的 getXxx()，如果是 boolean 基本数据类型变量（boolean 命名不需要加is前缀），会自动调用 isXxx() 方法</p>
+<p>4、<font color="red">【强制】</font>后台输送给页面的变量必须加 $!{var}——中间的感叹号。</p>
+<p><font color="orange">说明：</font> 如果 var 等于 null 或者不存在，那么 ${var} 会直接显示在页面上</p>
+<p>5、<font color="red">【强制】</font> 注意 Math.random() 这个方法返回的是 double 类型，注意取值范围 0 &lt;= x &lt; 1（能够取到 0 值，所以需要注意除零异常），如果想要获取整数类的随机数，不要把 x 扩大十的若干倍再取整，直接使用 Random 对象的 <strong>nextInt</strong> 或者 <strong>nextLong</strong> 方法</p>
+<p>6、<font color="orange">【推荐】</font> 不要在视图模板中加入任何复杂的逻辑，根据 MVC，视图层只负责展示数据</p>
+<p>7、<font color="orange">【推荐】</font>任何数据结构的构造或初始化，都应该指定大小，避免数据结构无限增长吃光内存</p>
+<p>8、<font color="orange">【推荐】</font>及时清理不再使用的代码段或者配置信息</p>
+<p><font color="green">正例：</font>对于暂时被注释掉，后续可能恢复使用的代码片断，在注释代码上方，统一规定使用三个斜杠(///) 来说明注释掉代码的理由。如:</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">hello</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="comment">/// 业务方通知活动暂停</span></span><br><span class="line">  <span class="comment">// Business business = new Business(); </span></span><br><span class="line">  <span class="comment">// business.active(); System.out.println(&quot;it&#x27;s finished&quot;);</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+
+
+
+
+
+]]></content>
+      <categories>
+        <category>Java</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+        <tag>代码规范</tag>
+        <tag>阿里Java手册</tag>
       </tags>
   </entry>
 </search>
